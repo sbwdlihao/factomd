@@ -2,6 +2,7 @@ package adminBlock
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 
 	"github.com/FactomProject/factomd/common/constants"
@@ -12,22 +13,24 @@ import (
 // DB Signature Entry -------------------------
 type RemoveFederatedServer struct {
 	IdentityChainID interfaces.IHash
+	DBHeight        uint32
 }
 
 var _ interfaces.IABEntry = (*RemoveFederatedServer)(nil)
 var _ interfaces.BinaryMarshallable = (*RemoveFederatedServer)(nil)
 
 func (c *RemoveFederatedServer) UpdateState(state interfaces.IState) {
-	if len(state.GetFedServers()) == 0 {
-		state.AddFedServer(c.IdentityChainID)
+	if len(state.GetFedServers(c.DBHeight)) == 0 {
+		state.AddFedServer(c.DBHeight, c.IdentityChainID)
 	}
 	state.Println(fmt.Sprintf("Removed Federated Server: %x", c.IdentityChainID.Bytes()[:3]))
 }
 
 // Create a new DB Signature Entry
-func NewRemoveFederatedServer(identityChainID interfaces.IHash) (e *RemoveFederatedServer) {
+func NewRemoveFederatedServer(identityChainID interfaces.IHash, dbheight uint32) (e *RemoveFederatedServer) {
 	e = new(RemoveFederatedServer)
 	e.IdentityChainID = primitives.NewHash(identityChainID.Bytes())
+	e.DBHeight = dbheight
 	return
 }
 
@@ -38,11 +41,13 @@ func (e *RemoveFederatedServer) Type() byte {
 func (e *RemoveFederatedServer) MarshalBinary() (data []byte, err error) {
 	var buf bytes.Buffer
 
+	buf.Write([]byte{e.Type()})
 	data, err = e.IdentityChainID.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
 	buf.Write(data)
+	binary.Write(&buf, binary.BigEndian, e.DBHeight)
 
 	return buf.Bytes(), nil
 }
@@ -55,6 +60,9 @@ func (e *RemoveFederatedServer) UnmarshalBinaryData(data []byte) (newData []byte
 	}()
 
 	newData = data
+	if newData[0] != e.Type() {
+		return nil, fmt.Errorf("Invalid Entry type")
+	}
 	newData = newData[1:]
 
 	e.IdentityChainID = new(primitives.Hash)
@@ -62,6 +70,9 @@ func (e *RemoveFederatedServer) UnmarshalBinaryData(data []byte) (newData []byte
 	if err != nil {
 		return
 	}
+
+	e.DBHeight, newData = binary.BigEndian.Uint32(newData[0:4]), newData[4:]
+
 	return
 }
 
@@ -83,7 +94,7 @@ func (e *RemoveFederatedServer) JSONBuffer(b *bytes.Buffer) error {
 }
 
 func (e *RemoveFederatedServer) String() string {
-	str := fmt.Sprintf("Add Server with Identity Chain ID = %x", e.IdentityChainID.Bytes()[:5])
+	str, _ := e.JSONString()
 	return str
 }
 
