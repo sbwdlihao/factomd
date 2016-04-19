@@ -133,10 +133,6 @@ func (m *MissingMsg) ChainID() []byte {
 	return nil
 }
 
-func (m *MissingMsg) ListHeight() int {
-	return 0
-}
-
 // Validate the message, given the state.  Three possible results:
 //  < 0 -- Message is invalid.  Discard
 //  0   -- Cannot tell if message is Valid

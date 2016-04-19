@@ -51,7 +51,7 @@ type ListServer struct {
 	EomComplete   bool              // Lists that are end of minute complete
 	SigComplete   bool              // Lists that are signature complete
 	Undo          interfaces.IMsg   // The Leader needs one level of undo to handle DB Sigs.
-    LastLeaderAck interfaces.IMsg   // The last Acknowledgement set by this leader
+	LastLeaderAck interfaces.IMsg   // The last Acknowledgement set by this leader
 	LastAck       interfaces.IMsg   // The last Acknowledgement set by this follower
 }
 
@@ -75,13 +75,13 @@ func (p *ProcessList) GetLastLeaderAck(index int) interfaces.IMsg {
 // Given a server index, return the last Ack
 func (p *ProcessList) SetLastLeaderAck(index int, msg interfaces.IMsg) error {
 	// Check the hash of the previous msg before we over write
-    p.Servers[index].Undo = p.Servers[index].LastLeaderAck
+	p.Servers[index].Undo = p.Servers[index].LastLeaderAck
 	p.Servers[index].LastLeaderAck = msg
 	return nil
 }
 
 func (p *ProcessList) UndoLeaderAck(index int) {
-    p.Servers[index].LastLeaderAck = p.Servers[index].Undo
+	p.Servers[index].LastLeaderAck = p.Servers[index].Undo
 }
 
 func (p *ProcessList) GetLen(list int) int {
@@ -211,10 +211,6 @@ func (p *ProcessList) Process(state *State) {
 					// compare the SerialHash of this acknowledgement with the
 					// expected serialHash (generated above)
 					if !expectedSerialHash.IsSameAs(thisAck.SerialHash) {
-						fmt.Println("DISCREPANCY: ", i, j, "on", state.GetFactomNodeName())
-						fmt.Printf("LAST MESS: %+v ::: LAST SERIAL: %+v\n", last.MessageHash, last.SerialHash)
-						fmt.Printf("THIS MESS: %+v ::: THIS SERIAL: %+v\n", thisAck.MessageHash, thisAck.SerialHash)
-						fmt.Println("EXPECT: ", expectedSerialHash)
 						// the SerialHash of this acknowledgment is incorrect
 						// according to this node's processList
 						plist[j] = nil
@@ -235,8 +231,8 @@ func (p *ProcessList) Process(state *State) {
 			if plist[j].Process(p.DBHeight, state) { // Try and Process this entry
 				p.Servers[i].Height = j + 1 // Don't process it again if the process worked.
 			} else {
-                break
-            }
+				break
+			}
 
 			// TODO:  If we carefully manage our state as we process messages, we
 			// would not need to check the messages here!  Checking for EOM and DBS
@@ -269,35 +265,35 @@ func (p *ProcessList) AddToProcessList(ack *messages.Ack, m interfaces.IMsg) {
 }
 
 func (p *ProcessList) String() string {
-    
-    prt := ""
+
+	prt := ""
 	if p == nil {
 		prt = "-- <nil>\n"
 	} else {
-		prt = fmt.Sprintf("%d with %d Federated Servers\n",p.State.GetFactomNodeName(),p.NumberServers)
+		prt = fmt.Sprintf("%d with %d Federated Servers\n", p.State.GetFactomNodeName(), p.NumberServers)
 
 		for i, server := range p.Servers {
 			if i >= p.NumberServers {
 				break
 			}
-            eom := ""
-            sig := ""
-            if server.EomComplete {
-                eom = "EOM Complete"
-            }
-            if server.SigComplete {
-                sig = "Sig Complete"
-            } 
-           
-			prt = prt + fmt.Sprintf("  Server %d %s %s\n", i,eom,sig)
+			eom := ""
+			sig := ""
+			if server.EomComplete {
+				eom = "EOM Complete"
+			}
+			if server.SigComplete {
+				sig = "Sig Complete"
+			}
+
+			prt = prt + fmt.Sprintf("  Server %d %s %s\n", i, eom, sig)
 			for j, msg := range server.List {
-                
-                if j < server.Height {
-                    prt = prt + "  p"
-                }else{
-                    prt = prt + "   "
-                }
-            
+
+				if j < server.Height {
+					prt = prt + "  p"
+				} else {
+					prt = prt + "   "
+				}
+
 				if msg != nil {
 					prt = prt + "   " + msg.String() + "\n"
 				} else {

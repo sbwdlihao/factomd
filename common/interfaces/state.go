@@ -33,6 +33,7 @@ type IState interface {
 	LoadDBState(dbheight uint32) (IMsg, error)
 	LoadSpecificMsg(dbheight uint32, plistheight uint32) (IMsg, error)
 	LoadSpecificMsgAndAck(dbheight uint32, plistheight uint32) (IMsg, IMsg, error)
+	LoadDataByHash(IHash) (interface{}, string, error)
 	GetFedServerIndexHash(IHash) (bool, int)
 	SetString()
 	ShortString() string
@@ -135,8 +136,8 @@ type IState interface {
 	// For messages that go into the Process List
 	LeaderExecute(m IMsg) error
 	LeaderExecuteEOM(m IMsg) error
-    LeaderExecuteDBSig(m IMsg) error
-    
+	LeaderExecuteDBSig(m IMsg) error
+
 	GetTimestamp() Timestamp
 
 	PrintType(int) bool // Debugging

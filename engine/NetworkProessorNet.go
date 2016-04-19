@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/FactomProject/factomd/common/constants"
+	"github.com/FactomProject/factomd/common/primitives"
 	"github.com/FactomProject/factomd/log"
 )
 
@@ -63,6 +64,23 @@ func NetworkProcessorNet(fnode *FactomNode) {
 			select {
 			case msg, ok := <-fnode.State.NetworkOutMsgQueue():
 				if ok && msg != nil && msg.GetMsgHash() != nil {
+					if rand.Int()%10 < 3 {
+						testAHash, err := primitives.HexToHash("7ae4ce54b78d81c0b5774d7b2c225d69369deca3e1f7bda5ba5c2e2a6e0e9931")
+						// DBLOCK: ("1146cfdb6e8ce0a88b3a871b177f9bd731dd124dcabb935badf8d1755bbdef56")
+						// FBLOCK: ("27614738b430978d7535857105610bf17cd3098ff420a0cd17e87444d6d43105")
+						// ABLOCK: ("7ae4ce54b78d81c0b5774d7b2c225d69369deca3e1f7bda5ba5c2e2a6e0e9931")
+						// ECBLOCK: ("a566023a9d7b824e4a12121ee38bc4d3c4987988f04eb8cfecc63570936d7c56")
+						if err != nil {
+							fmt.Println("Err in hth: ", err)
+						}
+						res, resString, err := fnode.State.LoadDataByHash(testAHash)
+						if err == nil {
+							fmt.Println("Type: ", resString)
+							fmt.Println(res)
+						} else {
+							fmt.Println("Err is", err)
+						}
+					}
 					if rand.Int()%1000 < fnode.State.GetDropRate() {
 						//drop the message, rather than processing it normally
 					} else {

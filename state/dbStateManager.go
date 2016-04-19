@@ -7,11 +7,12 @@ package state
 import (
 	"encoding/hex"
 	"fmt"
+	"time"
+
 	"github.com/FactomProject/factomd/common/directoryBlock/dbInfo"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/messages"
 	"github.com/FactomProject/factomd/log"
-	"time"
 )
 
 var _ = hex.EncodeToString
@@ -139,7 +140,7 @@ func (list *DBStateList) Catchup() {
 			return
 		}
 
-		if plHeight > dbsHeight && plHeight-dbsHeight > 2 {
+		if plHeight-dbsHeight > 2 {
 			begin = int(dbsHeight + 1)
 			end = int(plHeight - 1)
 		} else {
@@ -235,7 +236,7 @@ func (list *DBStateList) UpdateState() {
 					}
 					d.DirectoryBlock.AddEntry(eb.GetChainID(), key)
 				}
-				
+
 				_, err = d.DirectoryBlock.BuildBodyMR()
 				if err != nil {
 					panic(err.Error())
