@@ -6,7 +6,6 @@ package messages
 
 import (
 	"bytes"
-	"encoding/binary"
 	"fmt"
 
 	"github.com/FactomProject/factomd/common/constants"
@@ -17,8 +16,9 @@ import (
 //Structure to request missing messages in a node's process list
 type MissingData struct {
 	MessageBase
+	Timestamp interfaces.Timestamp
+
 	RequestHash interfaces.IHash
-	Timestamp   interfaces.Timestamp
 
 	//Not marshalled
 	hash interfaces.IHash
@@ -99,18 +99,12 @@ func (m *MissingData) UnmarshalBinary(data []byte) error {
 
 func (m *MissingData) MarshalBinary() ([]byte, error) {
 	var buf bytes.Buffer
-
-	binary.Write(&buf, binary.BigEndian, byte(m.Type()))
-
-	t := m.GetTimestamp()
-	data, err := t.MarshalBinary()
-	if err != nil {
+	buf.Write([]byte{byte(m.Type())})
+	if d, err := m.Timestamp.MarshalBinary(); err != nil {
 		return nil, err
+	} else {
+		buf.Write(d)
 	}
-	buf.Write(data)
-
-	//TODO: actually marshal RequestHash properly
-	//binary.Write(&buf, binary.BigEndian, m.RequestHash)
 
 	if d, err := m.RequestHash.MarshalBinary(); err != nil {
 		return nil, err
@@ -118,15 +112,7 @@ func (m *MissingData) MarshalBinary() ([]byte, error) {
 		buf.Write(d)
 	}
 
-	var md MissingData
-
-	bb := buf.Bytes()
-
-	if unmarshalErr := md.UnmarshalBinary(bb); unmarshalErr != nil {
-		return nil, unmarshalErr
-	}
-
-	return bb, nil
+	return buf.Bytes(), nil
 }
 
 func (m *MissingData) String() string {
