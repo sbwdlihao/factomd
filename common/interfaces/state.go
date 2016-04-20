@@ -34,7 +34,7 @@ type IState interface {
 	LoadSpecificMsg(dbheight uint32, plistheight uint32) (IMsg, error)
 	LoadSpecificMsgAndAck(dbheight uint32, plistheight uint32) (IMsg, IMsg, error)
 	LoadDataByHash(IHash) (interface{}, string, error)
-	GetFedServerIndexHash(IHash) (bool, int)
+	GetFedServerIndexHash(uint32, IHash) (bool, int)
 	SetString()
 	ShortString() string
 
