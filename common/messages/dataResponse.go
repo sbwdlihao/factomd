@@ -6,7 +6,6 @@ package messages
 
 import (
 	"bytes"
-	//	"encoding/binary"
 	"encoding/binary"
 	"fmt"
 
@@ -68,25 +67,58 @@ func (m *DataResponse) GetTimestamp() interfaces.Timestamp {
 //  0   -- Cannot tell if message is Valid
 //  1   -- Message is valid
 func (m *DataResponse) Validate(state interfaces.IState) int {
+	var dataHash interfaces.IHash
+	var err error
 	switch m.DataType {
 	case "dblock":
-		fmt.Println("Dblock")
+		dataObject, ok := m.DataObject.(interfaces.IDirectoryBlock)
+		if !ok {
+			return -1
+		}
+		dataHash = dataObject.GetHash()
 	case "entry":
-		fmt.Println("Entry")
+		dataObject, ok := m.DataObject.(interfaces.IEntry)
+		if !ok {
+			return -1
+		}
+		dataHash = dataObject.GetHash()
 	case "eblock":
-		fmt.Println("Eblock")
+		dataObject, ok := m.DataObject.(interfaces.IEntryBlock)
+		if !ok {
+			return -1
+		}
+		dataHash, err = dataObject.Hash()
+		if err != nil {
+			return -1
+		}
 	case "fblock":
-		fmt.Println("Fblock")
+		dataObject, ok := m.DataObject.(interfaces.IFBlock)
+		if !ok {
+			return -1
+		}
+		dataHash = dataObject.GetHash()
 	case "ecblock":
-		fmt.Println("ECblock")
+		dataObject, ok := m.DataObject.(interfaces.IEntryCreditBlock)
+		if !ok {
+			return -1
+		}
+		dataHash = dataObject.GetHash()
 	case "ablock":
-		fmt.Println("Ablock")
+		dataObject, ok := m.DataObject.(interfaces.IAdminBlock)
+		if !ok {
+			return -1
+		}
+		dataHash = dataObject.GetHash()
 	default:
 		// DataType currently not supported, treat as invalid
 		return -1
 	}
 
-	return 1
+	if dataHash.IsSameAs(m.DataHash) {
+		return 1
+	}
+
+	return -1
 }
 
 // Returns true if this is a message for this server to execute as
