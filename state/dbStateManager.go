@@ -144,7 +144,7 @@ func (list *DBStateList) Catchup() {
 			return
 		}
 
-		if plHeight-dbsHeight > 2 {
+		if plHeight > dbsHeight && plHeight-dbsHeight > 2 {
 			begin = int(dbsHeight + 1)
 			end = int(plHeight - 1)
 		} else {

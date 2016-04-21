@@ -28,6 +28,7 @@ type IState interface {
 	GetProtocolVersion() int
 	SetServer(IServer)
 	GetDBHeightComplete() uint32
+	GetDBHeightEBlockComplete() uint32
 	SetOut(bool)  // Output is turned on if set to true
 	GetOut() bool // Return true if Print or Println write output
 	LoadDBState(dbheight uint32) (IMsg, error)
@@ -42,6 +43,8 @@ type IState interface {
 	GetFedServers(uint32) []IFctServer
 
 	Green() bool
+
+	AddDataRequest(requestedHash, missingDataHash IHash)
 
 	// This is the highest block signed off and recorded in the Database.  This
 	// is a follower's state, but it is also critical to validation; we cannot

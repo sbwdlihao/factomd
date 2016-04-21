@@ -51,7 +51,7 @@ type State struct {
 	PortNumber              int
 	Replay                  *Replay
 	GreenFlg                bool
-    GreenCnt                int
+	GreenCnt                int
 	DropRate                int
 
 	IdentityChainID interfaces.IHash // If this node has an identity, this is it
@@ -128,12 +128,20 @@ type State struct {
 	// Web Services
 	Port int
 
-	//For Replay / journal
+	// For Replay / journal
 	IsReplaying     bool
 	ReplayTimestamp interfaces.Timestamp
 
-	//For throttling how many missing messages we request
+	// For throttling how many missing messages we request
 	IsThrottled bool
+
+	// Map to keep track of what data (entries / eblocks)
+	// we have requested and are waiting for DataResponses for
+	DataRequests map[[32]byte]interfaces.IHash
+
+	// Height of DBlock containing the last fully-verified
+	// and added EBlock
+	DBHeightEBlockComplete uint32
 }
 
 var _ interfaces.IState = (*State)(nil)
@@ -589,6 +597,10 @@ func (s *State) UpdateState() {
 
 func (s *State) Dethrottle() {
 	s.IsThrottled = false
+}
+
+func (s *State) AddDataRequest(requestedHash, missingDataHash interfaces.IHash) {
+	s.DataRequests[requestedHash.Fixed()] = missingDataHash
 }
 
 func (s *State) AddFedServer(dbheight uint32, hash interfaces.IHash) int {

@@ -70,14 +70,8 @@ func (m *DataResponse) Validate(state interfaces.IState) int {
 	var dataHash interfaces.IHash
 	var err error
 	switch m.DataType {
-	case "dblock":
-		dataObject, ok := m.DataObject.(interfaces.IDirectoryBlock)
-		if !ok {
-			return -1
-		}
-		dataHash = dataObject.GetHash()
 	case "entry":
-		dataObject, ok := m.DataObject.(interfaces.IEntry)
+		dataObject, ok := m.DataObject.(interfaces.IEBEntry)
 		if !ok {
 			return -1
 		}
@@ -91,24 +85,6 @@ func (m *DataResponse) Validate(state interfaces.IState) int {
 		if err != nil {
 			return -1
 		}
-	case "fblock":
-		dataObject, ok := m.DataObject.(interfaces.IFBlock)
-		if !ok {
-			return -1
-		}
-		dataHash = dataObject.GetHash()
-	case "ecblock":
-		dataObject, ok := m.DataObject.(interfaces.IEntryCreditBlock)
-		if !ok {
-			return -1
-		}
-		dataHash = dataObject.GetHash()
-	case "ablock":
-		dataObject, ok := m.DataObject.(interfaces.IAdminBlock)
-		if !ok {
-			return -1
-		}
-		dataHash = dataObject.GetHash()
 	default:
 		// DataType currently not supported, treat as invalid
 		return -1

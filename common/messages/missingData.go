@@ -155,24 +155,12 @@ func (m *MissingData) FollowerExecute(state interfaces.IState) error {
 		fmt.Println(dataType, "MESSAGE FROM MD: ", rawObject)
 
 		switch dataType {
-		case "dblock":
-			dataObject = rawObject.(interfaces.IDirectoryBlock)
-			dataHash = dataObject.(interfaces.IDirectoryBlock).GetHash()
 		case "entry":
-			dataObject = rawObject.(interfaces.IEntry)
-			dataHash = dataObject.(interfaces.IEntry).GetHash()
+			dataObject = rawObject.(interfaces.IEBEntry)
+			dataHash = dataObject.(interfaces.IEBEntry).GetHash()
 		case "eblock":
 			dataObject = rawObject.(interfaces.IEntryBlock)
 			dataHash, _ = dataObject.(interfaces.IEntryBlock).Hash()
-		case "fblock":
-			dataObject = rawObject.(interfaces.IFBlock)
-			dataHash = dataObject.(interfaces.IFBlock).GetHash()
-		case "ecblock":
-			dataObject = rawObject.(interfaces.IEntryCreditBlock)
-			dataHash = dataObject.(interfaces.IEntryCreditBlock).GetHash()
-		case "ablock":
-			dataObject = rawObject.(interfaces.IAdminBlock)
-			dataHash = dataObject.(interfaces.IAdminBlock).GetHash()
 		default:
 			return fmt.Errorf("Datatype unsupported")
 		}
@@ -206,6 +194,8 @@ func NewMissingData(state interfaces.IState, requestHash interfaces.IHash) inter
 	msg.Peer2peer = true // Always a peer2peer request.
 	msg.Timestamp = state.GetTimestamp()
 	msg.RequestHash = requestHash
+
+	state.AddDataRequest(requestHash, msg.GetHash())
 
 	return msg
 }

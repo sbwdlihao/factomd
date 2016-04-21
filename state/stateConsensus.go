@@ -6,6 +6,7 @@ package state
 
 import (
 	"fmt"
+
 	"github.com/FactomProject/factomd/common/adminBlock"
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/entryCreditBlock"
@@ -108,6 +109,72 @@ func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) error {
 	return nil
 }
 
+func (s *State) FollowerExecuteAddData(msg interfaces.IMsg) error {
+
+	dataResponseMsg, ok := msg.(*messages.DataResponse)
+	if !ok {
+		return fmt.Errorf("Cannot execute the given DataResponse")
+	}
+
+	switch dataResponseMsg.DataType {
+	case "entry":
+		entry := dataResponseMsg.DataObject.(interfaces.IEBEntry)
+
+		if entry.GetHash().IsSameAs(dataResponseMsg.DataHash) {
+			s.addEntry(entry)
+		}
+	case "eblock":
+		eblock := dataResponseMsg.DataObject.(interfaces.IEntryBlock)
+		dataHash, _ := eblock.Hash()
+		if dataHash.IsSameAs(dataResponseMsg.DataHash) {
+			s.addEBlock(eblock)
+		}
+	default:
+		return fmt.Errorf("Datatype currently unsupported")
+	}
+
+	return nil
+}
+
+func (s *State) addEntry(entry interfaces.IEBEntry) {
+	_, ok := s.DataRequests[entry.GetHash().Fixed()]
+	if ok {
+		s.DB.InsertEntry(entry)
+		delete(s.DataRequests, entry.GetHash().Fixed())
+	}
+}
+
+func (s *State) addEBlock(eblock interfaces.IEntryBlock) {
+	hash, err := eblock.Hash()
+	if err != nil {
+		_, ok := s.DataRequests[hash.Fixed()]
+		if ok {
+			haveAllEntries := true
+			for _, entryHash := range eblock.GetEntryHashes() {
+				entry, err := s.DB.FetchEntryByHash(entryHash)
+				if err != nil || entry == nil {
+					haveAllEntries = false
+					entryRequest := messages.NewMissingData(s, entryHash)
+					s.NetworkOutMsgQueue() <- entryRequest
+				}
+			}
+			if haveAllEntries {
+				// Database includes all eblock entries, so we can consider
+				// the eblock verified and add it to the database
+				s.DB.ProcessEBlockBatch(eblock)
+				delete(s.DataRequests, hash.Fixed())
+				s.DBHeightEBlockComplete = eblock.GetDatabaseHeight()
+			} else {
+				// Otherwise, we should remember to try adding back the eblock
+				// a little later (when we hopefully have all the entries)
+				// THIS COULD BE IMPROVED -- INEFFICIENT (POSSIBLY REDUNDANT)
+				reRequest := messages.NewMissingData(s, hash)
+				s.NetworkOutMsgQueue() <- reRequest
+			}
+		}
+	}
+}
+
 func (s *State) LeaderExecute(m interfaces.IMsg) error {
 
 	hash := m.GetHash()
@@ -178,18 +245,18 @@ func (s *State) ProcessCommitChain(dbheight uint32, commitChain interfaces.IMsg)
 	if !ok {
 		return false
 	}
-	
+
 	pl := s.ProcessLists.Get(dbheight)
 	pl.EntryCreditBlock.GetBody().AddEntry(c.CommitChain)
 	s.GetFactoidState().UpdateECTransaction(true, c.CommitChain)
-	
+
 	// save the Commit to match agains the Reveal later
 	s.PutCommits(c.GetHash(), c)
 	// check for a matching Reveal and, if found, execute it
 	if r := s.GetReveals(c.GetHash()); r != nil {
 		s.LeaderExecute(r)
 	}
-	
+
 	return true
 }
 
@@ -198,18 +265,18 @@ func (s *State) ProcessCommitEntry(dbheight uint32, commitEntry interfaces.IMsg)
 	if !ok {
 		return false
 	}
-	
+
 	pl := s.ProcessLists.Get(dbheight)
 	pl.EntryCreditBlock.GetBody().AddEntry(c.CommitEntry)
 	s.GetFactoidState().UpdateECTransaction(true, c.CommitEntry)
-	
+
 	// save the Commit to match agains the Reveal later
 	s.PutCommits(c.GetHash(), c)
 	// check for a matching Reveal and, if found, execute it
 	if r := s.GetReveals(c.GetHash()); r != nil {
 		s.LeaderExecute(r)
 	}
-	
+
 	return true
 }
 
@@ -242,10 +309,10 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 	// We need to have all EOM markers before we start to clean up this height.
 	if e.Minute == 9 {
 
-        // Set this list complete
+		// Set this list complete
 		pl.SetEomComplete(e.ServerIndex, true)
 
-        // Check if all are complete
+		// Check if all are complete
 		if !pl.EomComplete() {
 			return false
 		}
@@ -257,7 +324,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 			ecbody.AddEntry(mn)
 		}
 	}
-	
+
 	// Add EOM to the EBlocks
 	for _, eb := range pl.NewEBlocks {
 		eb.AddEndOfMinuteMarker(e.Bytes()[0])
@@ -291,7 +358,7 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 
 		DBS2 := new(messages.DirectoryBlockSignature)
 		DBS2.Timestamp = s.GetTimestamp()
-        DBS2.ServerIdentityChainID = DBS.ServerIdentityChainID
+		DBS2.ServerIdentityChainID = DBS.ServerIdentityChainID
 		DBS2.DBHeight = DBS.DBHeight
 		DBS2.ServerIndex = DBS.ServerIndex
 		DBS2.DirectoryBlockKeyMR = dbstate.DirectoryBlock.GetKeyMR()
@@ -309,7 +376,7 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 		// Leader Execute creates an acknowledgement and the EOM
 		s.NetworkOutMsgQueue() <- ack
 		s.NetworkOutMsgQueue() <- DBS2
-        s.Print("SENT DBS2")
+		s.Print("SENT DBS2")
 	} else {
 
 		// TODO follower should validate signature here.
@@ -332,7 +399,6 @@ func (s *State) PutNewEntries(dbheight uint32, hash interfaces.IHash, e interfac
 	pl := s.ProcessLists.Get(dbheight)
 	pl.PutNewEntries(dbheight, hash, e)
 }
-
 
 func (s *State) GetCommits(hash interfaces.IHash) interfaces.IMsg {
 	return s.Commits[hash.Fixed()]
@@ -394,11 +460,11 @@ func (s *State) Green() bool {
 	high := s.GetHighestKnownBlock()
 	s.GreenFlg = rec >= high-1
 	if s.GreenFlg {
-        s.GreenCnt++
-    }else{
-        s.GreenCnt=0
-    }
-    return s.GreenFlg
+		s.GreenCnt++
+	} else {
+		s.GreenCnt = 0
+	}
+	return s.GreenFlg
 }
 
 // This is lowest block currently under construction under the "leader".
@@ -458,10 +524,10 @@ func (s *State) PutE(rt bool, adr [32]byte, v int64) {
 // ...
 func (s *State) ServerIndexFor(dbheight uint32, hash []byte) int {
 	pl := s.ProcessLists.Get(dbheight)
-    if pl == nil {
-        return 0
-    }
-    n := len(s.ProcessLists.Get(dbheight).FedServers)
+	if pl == nil {
+		return 0
+	}
+	n := len(s.ProcessLists.Get(dbheight).FedServers)
 	v := 0
 	if len(hash) > 0 {
 		v = int(hash[0]) % n
@@ -496,7 +562,7 @@ func (s *State) NewAdminBlockHeader(dbheight uint32) interfaces.IABlockHeader {
 
 func (s *State) PrintType(msgType int) bool {
 	r := true
-    return r
+	return r
 	r = r && msgType != constants.ACK_MSG
 	r = r && msgType != constants.EOM_MSG
 	r = r && msgType != constants.DIRECTORY_BLOCK_SIGNATURE_MSG
@@ -524,6 +590,10 @@ func (s *State) GetDBHeightComplete() uint32 {
 		return 0
 	}
 	return db.GetHeader().GetDBHeight()
+}
+
+func (s *State) GetDBHeightEBlockComplete() uint32 {
+	return s.DBHeightEBlockComplete
 }
 
 func (s *State) GetDirectoryBlock() interfaces.IDirectoryBlock {
