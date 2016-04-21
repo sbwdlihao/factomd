@@ -32,6 +32,7 @@ type DBState struct {
 	AdminBlock       interfaces.IAdminBlock
 	FactoidBlock     interfaces.IFBlock
 	EntryCreditBlock interfaces.IEntryCreditBlock
+	EntryBlockStatus map[interfaces.IHash]bool
 	Saved            bool
 }
 
@@ -107,7 +108,6 @@ func (list *DBStateList) GetHighestRecordedBlock() uint32 {
 
 // Once a second at most, we check to see if we need to pull down some blocks to catch up.
 func (list *DBStateList) Catchup() {
-
 	now := list.State.GetTimestamp()
 
 	dbsHeight := list.GetHighestRecordedBlock()
@@ -169,6 +169,32 @@ func (list *DBStateList) Catchup() {
 
 func (list *DBStateList) UpdateState() (progress bool) {
 	list.Catchup()
+
+	// check for missing/incomplete eblocks
+	if list.State.GetDBHeightEBlockComplete() < list.State.GetDBHeightComplete() {
+		currentEBlockState := list.State.GetDBState(list.State.GetDBHeightEBlockComplete())
+		if currentEBlockState != nil && !currentEBlockState.IsCurrentEBlockDone() {
+			dblock := currentEBlockState.DirectoryBlock
+			for idx, dbentry := range dblock.GetDBEntries() {
+				if idx > 2 { // skip 0, 1, 2 (admin, ec, factoid blocks)
+					fmt.Println(dbentry.GetChainID())
+
+					/*
+						adminHash, _ := primitives.HexToHash("000000000000000000000000000000000000000000000000000000000000000a")
+						ecHash, _ := primitives.HexToHash("000000000000000000000000000000000000000000000000000000000000000c")
+						factoidHash, _ := primitives.HexToHash("000000000000000000000000000000000000000000000000000000000000000f")
+						if !dbentry.GetChainID().IsSameAs(adminHash) {
+							if !dbentry.GetChainID().IsSameAs(ecHash) {
+								if !dbentry.GetChainID().IsSameAs(factoidHash) {*/
+					eBlockRequest := messages.NewMissingData(list.State, dbentry.GetKeyMR())
+					list.State.NetworkOutMsgQueue() <- eBlockRequest
+					/*}
+						}
+					}*/
+				}
+			}
+		}
+	}
 
 	for i, d := range list.DBStates {
 
@@ -320,6 +346,34 @@ func (list *DBStateList) Highest() uint32 {
 	return high
 }
 
+func (dbstate *DBState) IsCurrentEBlockDone() bool {
+	if dbstate == nil {
+		fmt.Println("DBSTATE NIL")
+		return false
+	}
+
+	if dbstate.DirectoryBlock == nil {
+		fmt.Println("DBLOCK NIL")
+		return false
+	}
+
+	fullEntryList := dbstate.DirectoryBlock.GetEntryHashes()
+	for idx, entryHash := range fullEntryList {
+		if idx > 2 {
+			fmt.Printf("ICEBD: %x\n", entryHash.Bytes()[:3])
+			if _, ok := dbstate.EntryBlockStatus[entryHash]; !ok {
+				dbstate.EntryBlockStatus[entryHash] = false
+			}
+		}
+	}
+	for _, entryExists := range dbstate.EntryBlockStatus {
+		if !entryExists {
+			return false
+		}
+	}
+	return true
+}
+
 func (list *DBStateList) Put(dbState *DBState) {
 
 	// Hold off on any requests if I'm actually processing...
@@ -406,6 +460,7 @@ func (list *DBStateList) NewDBState(isNew bool,
 	dbState.AdminBlock = adminBlock
 	dbState.FactoidBlock = factoidBlock
 	dbState.EntryCreditBlock = entryCreditBlock
+	dbState.EntryBlockStatus = make(map[interfaces.IHash]bool)
 
 	list.Put(dbState)
 	return dbState

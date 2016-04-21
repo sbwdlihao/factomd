@@ -114,7 +114,7 @@ func (m *DataResponse) Follower(interfaces.IState) bool {
 }
 
 func (m *DataResponse) FollowerExecute(state interfaces.IState) error {
-	return state.FollowerExecuteDBState(m)
+	return state.FollowerExecuteAddData(m)
 }
 
 // Acknowledgements do not go into the process list.

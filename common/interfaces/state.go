@@ -131,6 +131,7 @@ type IState interface {
 	FollowerExecuteMsg(m IMsg) (bool, error) // Messages that go into the process list
 	FollowerExecuteAck(m IMsg) (bool, error) // Ack Msg calls this function.
 	FollowerExecuteDBState(IMsg) error       // Add the given DBState to this server
+	FollowerExecuteAddData(IMsg) error       // Add the given data (EBlock / Entry)
 
 	ProcessAddServer(dbheight uint32, addServerMsg IMsg) bool
 	ProcessCommitChain(dbheight uint32, commitChain IMsg) bool

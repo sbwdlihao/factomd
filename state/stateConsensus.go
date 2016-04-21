@@ -110,7 +110,7 @@ func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) error {
 }
 
 func (s *State) FollowerExecuteAddData(msg interfaces.IMsg) error {
-
+	fmt.Println("FEAD")
 	dataResponseMsg, ok := msg.(*messages.DataResponse)
 	if !ok {
 		return fmt.Errorf("Cannot execute the given DataResponse")
@@ -164,13 +164,13 @@ func (s *State) addEBlock(eblock interfaces.IEntryBlock) {
 				s.DB.ProcessEBlockBatch(eblock)
 				delete(s.DataRequests, hash.Fixed())
 				s.DBHeightEBlockComplete = eblock.GetDatabaseHeight()
-			} else {
+			} /*else {
 				// Otherwise, we should remember to try adding back the eblock
 				// a little later (when we hopefully have all the entries)
 				// THIS COULD BE IMPROVED -- INEFFICIENT (POSSIBLY REDUNDANT)
 				reRequest := messages.NewMissingData(s, hash)
 				s.NetworkOutMsgQueue() <- reRequest
-			}
+			}*/
 		}
 	}
 }
