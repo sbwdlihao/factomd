@@ -157,7 +157,14 @@ func (m *DataResponse) UnmarshalBinaryData(data []byte) (newData []byte, err err
 		return nil, err
 	}
 
-	//UNMARSHAL m.DataObject (interface{})
+	// Currently trying both ways (IEBEntry / IEntryBlock) -- this may not ultimately work
+	_, err = m.DataObject.(interfaces.IEBEntry).UnmarshalBinaryData(newData)
+	if err != nil {
+		_, err := m.DataObject.(interfaces.IEntryBlock).UnmarshalBinaryData(newData)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	m.Peer2peer = true // Always a peer2peer request.
 
@@ -170,19 +177,32 @@ func (m *DataResponse) UnmarshalBinary(data []byte) error {
 }
 
 func (m *DataResponse) MarshalBinary() ([]byte, error) {
-
 	var buf bytes.Buffer
-
-	binary.Write(&buf, binary.BigEndian, byte(m.Type()))
-
-	t := m.GetTimestamp()
-	data, err := t.MarshalBinary()
-	if err != nil {
+	buf.Write([]byte{byte(m.Type())})
+	if d, err := m.Timestamp.MarshalBinary(); err != nil {
 		return nil, err
+	} else {
+		buf.Write(d)
 	}
-	buf.Write(data)
 
-	buf.Write(data)
+	binary.Write(&buf, binary.BigEndian, uint8(m.DataType))
+
+	if d, err := m.DataHash.MarshalBinary(); err != nil {
+		return nil, err
+	} else {
+		buf.Write(d)
+	}
+
+	// Currently trying both ways (IEBEntry / IEntryBlock) -- this may not ultimately work
+	if d, err := m.DataObject.(interfaces.IEBEntry).MarshalBinary(); err != nil {
+		if d, err := m.DataObject.(interfaces.IEntryBlock).MarshalBinary(); err != nil {
+			return nil, err
+		} else {
+			buf.Write(d)
+		}
+	} else {
+		buf.Write(d)
+	}
 
 	return buf.Bytes(), nil
 }
