@@ -20,7 +20,7 @@ type DataResponse struct {
 	MessageBase
 	Timestamp interfaces.Timestamp
 
-	DataType   string
+	DataType   int // 0 = Entry, 1 = EntryBlock
 	DataHash   interfaces.IHash
 	DataObject interface{}
 }
@@ -70,13 +70,13 @@ func (m *DataResponse) Validate(state interfaces.IState) int {
 	var dataHash interfaces.IHash
 	var err error
 	switch m.DataType {
-	case "entry":
+	case 0: // DataType = entry
 		dataObject, ok := m.DataObject.(interfaces.IEBEntry)
 		if !ok {
 			return -1
 		}
 		dataHash = dataObject.GetHash()
-	case "eblock":
+	case 1: // DataType = eblock
 		dataObject, ok := m.DataObject.(interfaces.IEntryBlock)
 		if !ok {
 			return -1
@@ -136,18 +136,32 @@ func (e *DataResponse) JSONBuffer(b *bytes.Buffer) error {
 
 func (m *DataResponse) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
-		return
 		if r := recover(); r != nil {
 			err = fmt.Errorf("Error unmarshalling: %v", r)
 		}
 	}()
 
-	m.Peer2peer = true
+	newData = data[1:]
 
-	newData = data[1:] // Skip our type;  Someone else's problem.
+	newData, err = m.Timestamp.UnmarshalBinaryData(newData)
+	if err != nil {
+		return nil, err
+	}
 
-	//TODO: Unmarshal relevant data
-	return
+	m.DataType = int(newData[0])
+	newData = newData[1:]
+
+	m.DataHash = primitives.NewHash(constants.ZERO_HASH)
+	newData, err = m.DataHash.UnmarshalBinaryData(newData)
+	if err != nil {
+		return nil, err
+	}
+
+	//UNMARSHAL m.DataObject (interface{})
+
+	m.Peer2peer = true // Always a peer2peer request.
+
+	return data, nil
 }
 
 func (m *DataResponse) UnmarshalBinary(data []byte) error {
@@ -181,7 +195,7 @@ func (m *DataResponse) String() string {
 }
 
 func NewDataResponse(dataObject interface{},
-	dataType string,
+	dataType int,
 	dataHash interfaces.IHash) interfaces.IMsg {
 
 	msg := new(DataResponse)

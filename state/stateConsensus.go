@@ -117,13 +117,13 @@ func (s *State) FollowerExecuteAddData(msg interfaces.IMsg) error {
 	}
 
 	switch dataResponseMsg.DataType {
-	case "entry":
+	case 0: // DataType = entry
 		entry := dataResponseMsg.DataObject.(interfaces.IEBEntry)
 
 		if entry.GetHash().IsSameAs(dataResponseMsg.DataHash) {
 			s.addEntry(entry)
 		}
-	case "eblock":
+	case 1: // DataType = eblock
 		eblock := dataResponseMsg.DataObject.(interfaces.IEntryBlock)
 		dataHash, _ := eblock.Hash()
 		if dataHash.IsSameAs(dataResponseMsg.DataHash) {

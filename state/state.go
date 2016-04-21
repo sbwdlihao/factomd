@@ -467,71 +467,73 @@ func (s *State) LoadSpecificMsgAndAck(dbheight uint32, plistheight uint32) (inte
 	return msg, ackMsg, nil
 }
 
-func (s *State) LoadDataByHash(requestedHash interfaces.IHash) (interface{}, string, error) {
+func (s *State) LoadDataByHash(requestedHash interfaces.IHash) (interface{}, int, error) {
 	if requestedHash == nil {
-		return nil, "", fmt.Errorf("Requested hash must be non-empty")
+		return nil, -1, fmt.Errorf("Requested hash must be non-empty")
 	}
 
 	fmt.Println("Getting hash", requestedHash)
 	var result interface{}
 
-	// Check for Directory Block
-	result, _ = s.GetDB().FetchDBlockByKeyMR(requestedHash)
-	if result != nil {
-		return result, "dblock", nil
-	}
-	result, _ = s.GetDB().FetchDBlockByHash(requestedHash)
-	if result != nil {
-		return result, "dblock", nil
-	}
-
 	// Check for Entry
 	result, _ = s.GetDB().FetchEntryByHash(requestedHash)
 	if result != nil {
-		return result, "entry", nil
+		return result, 0, nil
 	}
 
 	// Check for Entry Block
 	result, _ = s.GetDB().FetchEBlockByKeyMR(requestedHash)
 	if result != nil {
-		return result, "eblock", nil
+		return result, 1, nil
 	}
 	result, _ = s.GetDB().FetchEBlockByHash(requestedHash)
 	if result != nil {
-		return result, "eblock", nil
+		return result, 1, nil
 	}
+	/*
+		// Check for Directory Block
+		result, _ = s.GetDB().FetchDBlockByKeyMR(requestedHash)
+		if result != nil {
+			return result, 2, nil
+		}
+		result, _ = s.GetDB().FetchDBlockByHash(requestedHash)
+		if result != nil {
+			return result, 2, nil
+		}
 
-	// Check for Factoid Block
-	result, _ = s.GetDB().FetchFBlockByKeyMR(requestedHash)
-	if result != nil {
-		return result, "fblock", nil
-	}
-	result, _ = s.GetDB().FetchFBlockByHash(requestedHash)
-	if result != nil {
-		return result, "fblock", nil
-	}
+		// Check for Factoid Block
+		result, _ = s.GetDB().FetchFBlockByKeyMR(requestedHash)
+		if result != nil {
+			return result, "fblock", nil
+		}
+		result, _ = s.GetDB().FetchFBlockByHash(requestedHash)
+		if result != nil {
+			return result, "fblock", nil
+		}
 
-	// Check for Entry Credit Block
-	result, _ = s.GetDB().FetchECBlockByHeaderHash(requestedHash)
-	if result != nil {
-		return result, "ecblock", nil
-	}
-	result, _ = s.GetDB().FetchECBlockByHash(requestedHash)
-	if result != nil {
-		return result, "ecblock", nil
-	}
+		// Check for Entry Credit Block
+		result, _ = s.GetDB().FetchECBlockByHeaderHash(requestedHash)
+		if result != nil {
+			return result, "ecblock", nil
+		}
+		result, _ = s.GetDB().FetchECBlockByHash(requestedHash)
+		if result != nil {
+			return result, "ecblock", nil
+		}
 
-	// Check for Admin Block
-	result, _ = s.GetDB().FetchABlockByKeyMR(requestedHash)
-	if result != nil {
-		return result, "ablock", nil
-	}
-	result, _ = s.GetDB().FetchABlockByHash(requestedHash)
-	if result != nil {
-		return result, "ablock", nil
-	} else {
-		return nil, "", fmt.Errorf("Database does not include requested data")
-	}
+		// Check for Admin Block
+		result, _ = s.GetDB().FetchABlockByKeyMR(requestedHash)
+		if result != nil {
+			return result, "ablock", nil
+		}
+		result, _ = s.GetDB().FetchABlockByHash(requestedHash)
+		if result != nil {
+			return result, "ablock", nil
+		} else {
+			return nil, "", fmt.Errorf("Database does not include requested data")
+		}
+	*/
+	return nil, -1, nil
 }
 
 func (s *State) MessageToLogString(msg interfaces.IMsg) string {

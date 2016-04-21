@@ -149,16 +149,11 @@ func (m *MissingData) FollowerExecute(state interfaces.IState) error {
 	rawObject, dataType, err := state.LoadDataByHash(m.RequestHash)
 
 	if rawObject != nil && err == nil { // If I don't have this message, ignore.
-		//msg.SetOrigin(m.GetOrigin())
-		//state.NetworkOutMsgQueue() <- msg
-		//TODO: actually send the data to the requesting node
-		fmt.Println(dataType, "MESSAGE FROM MD: ", rawObject)
-
 		switch dataType {
-		case "entry":
+		case 0: // DataType = entry
 			dataObject = rawObject.(interfaces.IEBEntry)
 			dataHash = dataObject.(interfaces.IEBEntry).GetHash()
-		case "eblock":
+		case 1: // DataType = eblock
 			dataObject = rawObject.(interfaces.IEntryBlock)
 			dataHash, _ = dataObject.(interfaces.IEntryBlock).Hash()
 		default:
