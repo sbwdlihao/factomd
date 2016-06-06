@@ -6,6 +6,8 @@ package entryBlock
 
 import (
 	"bytes"
+	"fmt"
+
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
 )
@@ -27,6 +29,10 @@ var _ interfaces.DatabaseBlockWithEntries = (*EBlock)(nil)
 
 func (c *EBlock) GetEntryHashes() []interfaces.IHash {
 	return c.Body.EBEntries[:]
+}
+
+func (c *EBlock) GetEntrySigHashes() []interfaces.IHash {
+	return nil
 }
 
 func (c *EBlock) New() interfaces.BinaryMarshallableAndCopyable {
@@ -115,6 +121,11 @@ func (e *EBlock) BuildHeader() error {
 	e.Header.SetBodyMR(e.Body.MR())
 	e.Header.SetEntryCount(uint32(len(e.Body.EBEntries)))
 	return nil
+}
+
+func (e *EBlock) GetHash() interfaces.IHash {
+	h, _ := e.Hash()
+	return h
 }
 
 // Hash returns the simple Sha256 hash of the serialized Entry Block. Hash is
@@ -228,7 +239,13 @@ func (e *EBlock) marshalBodyBinary() ([]byte, error) {
 }
 
 // unmarshalBodyBinary builds the Entry Block Body from the serialized binary.
-func (e *EBlock) unmarshalBodyBinaryData(data []byte) ([]byte, error) {
+func (e *EBlock) unmarshalBodyBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("Error unmarshalling: %v", r)
+		}
+	}()
+
 	buf := primitives.NewBuffer(data)
 	hash := make([]byte, 32)
 
@@ -242,7 +259,8 @@ func (e *EBlock) unmarshalBodyBinaryData(data []byte) ([]byte, error) {
 		e.Body.EBEntries = append(e.Body.EBEntries, h)
 	}
 
-	return buf.DeepCopyBytes(), nil
+	newData = buf.DeepCopyBytes()
+	return
 }
 
 func (e *EBlock) unmarshalBodyBinary(data []byte) (err error) {

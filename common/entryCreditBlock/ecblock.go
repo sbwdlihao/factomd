@@ -8,10 +8,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"io"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
-	"io"
 )
 
 const (
@@ -33,6 +34,53 @@ type ECBlock struct {
 var _ interfaces.Printable = (*ECBlock)(nil)
 var _ interfaces.BinaryMarshallableAndCopyable = (*ECBlock)(nil)
 var _ interfaces.IEntryCreditBlock = (*ECBlock)(nil)
+var _ interfaces.DatabaseBlockWithEntries = (*ECBlock)(nil)
+
+func (c *ECBlock) GetEntries() []interfaces.IECBlockEntry {
+	return c.Body.GetEntries()
+}
+
+func (c *ECBlock) GetEntryByHash(hash interfaces.IHash) interfaces.IECBlockEntry {
+	if hash == nil {
+		return nil
+	}
+
+	txs := c.GetEntries()
+	for _, tx := range txs {
+		if hash.IsSameAs(tx.Hash()) {
+			return tx
+		}
+		if hash.IsSameAs(tx.GetSigHash()) {
+			return tx
+		}
+	}
+	return nil
+}
+
+func (c *ECBlock) GetEntryHashes() []interfaces.IHash {
+	entries := c.Body.GetEntries()
+	answer := make([]interfaces.IHash, 0, len(entries))
+	for _, entry := range entries {
+		if entry.ECID() == ECIDBalanceIncrease || entry.ECID() == ECIDChainCommit || entry.ECID() == ECIDEntryCommit {
+			answer = append(answer, entry.Hash())
+		}
+	}
+	return answer
+}
+
+func (c *ECBlock) GetEntrySigHashes() []interfaces.IHash {
+	entries := c.Body.GetEntries()
+	answer := make([]interfaces.IHash, 0, len(entries))
+	for _, entry := range entries {
+		if entry.ECID() == ECIDBalanceIncrease || entry.ECID() == ECIDChainCommit || entry.ECID() == ECIDEntryCommit {
+			sHash := entry.GetSigHash()
+			if sHash != nil {
+				answer = append(answer, sHash)
+			}
+		}
+	}
+	return answer
+}
 
 func (c *ECBlock) GetBody() interfaces.IECBlockBody {
 	return c.Body
@@ -145,6 +193,12 @@ func UnmarshalECBlock(data []byte) (interfaces.IEntryCreditBlock, error) {
 }
 
 func (e *ECBlock) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("Error unmarshalling: %v", r)
+		}
+	}()
+
 	// Unmarshal Header
 	if e.GetHeader() == nil {
 		e.Header = NewECBlockHeader()
@@ -228,6 +282,11 @@ func (e *ECBlock) marshalHeaderBinary() ([]byte, error) {
 func (e *ECBlock) unmarshalBodyBinaryData(data []byte) ([]byte, error) {
 	buf := primitives.NewBuffer(data)
 	var err error
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("Error unmarshalling: %v", r)
+		}
+	}()
 
 	for i := uint64(0); i < e.Header.GetObjectCount(); i++ {
 		var id byte

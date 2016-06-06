@@ -32,6 +32,18 @@ func (e *ServerIndexNumber) Hash() interfaces.IHash {
 	return primitives.Sha(bin)
 }
 
+func (e *ServerIndexNumber) GetHash() interfaces.IHash {
+	return e.Hash()
+}
+
+func (a *ServerIndexNumber) GetEntryHash() interfaces.IHash {
+	return nil
+}
+
+func (e *ServerIndexNumber) GetSigHash() interfaces.IHash {
+	return nil
+}
+
 func (b *ServerIndexNumber) IsInterpretable() bool {
 	return true
 }
@@ -61,6 +73,12 @@ func (s *ServerIndexNumber) MarshalBinary() ([]byte, error) {
 }
 
 func (s *ServerIndexNumber) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("Error unmarshalling ServerIndexNumber: %v", r)
+		}
+	}()
+
 	buf := primitives.NewBuffer(data)
 	var c byte
 	if c, err = buf.ReadByte(); err != nil {

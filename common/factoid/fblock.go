@@ -52,6 +52,32 @@ func (c *FBlock) GetEntryHashes() []interfaces.IHash {
 	return answer
 }
 
+func (c *FBlock) GetTransactionByHash(hash interfaces.IHash) interfaces.ITransaction {
+	if hash == nil {
+		return nil
+	}
+
+	txs := c.GetTransactions()
+	for _, tx := range txs {
+		if hash.IsSameAs(tx.GetHash()) {
+			return tx
+		}
+		if hash.IsSameAs(tx.GetSigHash()) {
+			return tx
+		}
+	}
+	return nil
+}
+
+func (c *FBlock) GetEntrySigHashes() []interfaces.IHash {
+	entries := c.Transactions[:]
+	answer := make([]interfaces.IHash, len(entries))
+	for i, entry := range entries {
+		answer[i] = entry.GetSigHash()
+	}
+	return answer
+}
+
 func (c *FBlock) New() interfaces.BinaryMarshallableAndCopyable {
 	return new(FBlock)
 }
@@ -227,8 +253,7 @@ func UnmarshalFBlock(data []byte) (interfaces.IFBlock, error) {
 // UnmarshalBinary assumes that the Binary is all good.  We do error
 // out if there isn't enough data, or the transaction is too large.
 func (b *FBlock) UnmarshalBinaryData(data []byte) (newdata []byte, err error) {
-
-	// To catch memory errors, I capture the panic and turn it into
+	// To catch memory errors, we capture the panic and turn it into
 	// a reported error.
 	defer func() {
 		return

@@ -35,7 +35,9 @@ type IEntryBlock interface {
 	GetBody() IEBlockBody
 
 	GetEntryHashes() []IHash
+	GetEntrySigHashes() []IHash
 	HeaderHash() (IHash, error)
+	GetHash() IHash
 	BodyKeyMR() IHash
 }
 
