@@ -404,6 +404,8 @@ func (p *ProcessList) IncrementDiffSigTally() {
 }
 
 func (p *ProcessList) CheckDiffSigTally() {
+	// If the majority of VMs' signatures do not match our
+	// saved block, we discard that block from our database.
 	if p.DiffSigTally > 0 && p.DiffSigTally > (len(p.FedServers)/2) {
 		p.State.DB.Delete([]byte{byte(databaseOverlay.DIRECTORYBLOCK)}, p.State.ProcessLists.Lists[0].DirectoryBlock.GetKeyMR().Bytes())
 	}

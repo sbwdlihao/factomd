@@ -555,7 +555,6 @@ func (s *State) ProcessRevealEntry(dbheight uint32, m interfaces.IMsg) bool {
 // is then that we push it out to the rest of the network.  Otherwise, if we are not the
 // leader for the signature, it marks the sig complete for that list
 func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
-
 	dbs := msg.(*messages.DirectoryBlockSignature)
 
 	resp := dbs.Validate(s)
@@ -563,14 +562,27 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 		return false
 	}
 
+	prevBlockFromDatabase, err := s.DB.FetchDBlockByHeight(dbheight - 1)
+	if err != nil {
+		fmt.Println("Error fetching previous DBlock from database:", err)
+		return true
+	}
+
 	// When processing DirectoryBlockSignatures, we check to see if the signed block
 	// matches our own saved block. If the majority of VMs' signatures do not match
 	// our saved block, we discard that block from our database.
 	s.SetLeaderTimestamp(uint64(dbs.Timestamp.GetTime().Unix()))
-	s.GetDirectoryBlock().GetHeader().SetTimestamp(uint32(s.GetLeaderTimestamp()))
 	p := s.ProcessLists.LastList()
 
-	if !dbs.DirectoryBlockKeyMR.IsSameAs(s.ProcessLists.Lists[0].DirectoryBlock.GetKeyMR()) {
+	/*fmt.Println("**************************************************************************************************")
+	fmt.Println(dbs.DirectoryBlockKeyMR)
+	fmt.Println("**************************************************************************************************")
+	fmt.Println(prevBlockFromDatabase.String())
+	fmt.Println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")*/
+
+	if !dbs.DirectoryBlockKeyMR.IsSameAs(prevBlockFromDatabase.GetKeyMR()) {
+		fmt.Println("COMPARED: ", dbs.DirectoryBlockKeyMR, "TO", prevBlockFromDatabase.GetKeyMR(), "(", prevBlockFromDatabase.GetDatabaseHeight(), " - ", (dbheight - 1), ")")
+
 		p.IncrementDiffSigTally()
 		p.CheckDiffSigTally()
 	}
