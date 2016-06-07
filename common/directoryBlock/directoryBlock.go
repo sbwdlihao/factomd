@@ -159,6 +159,9 @@ func (e *DirectoryBlock) String() string {
 		out.WriteString(fmt.Sprintf("%20s %v\n", "BodyMR:", kmr.String()))
 	}
 
+	fh := e.GetFullHash()
+	out.WriteString(fmt.Sprintf("%20s %v\n", "BodyMR:", fh.String()))
+
 	out.WriteString(e.Header.String())
 	out.WriteString("Entries: \n")
 	for _, entry := range e.DBEntries {
@@ -312,7 +315,6 @@ func (b *DirectoryBlock) GetFullHash() interfaces.IHash {
 		return nil
 	}
 	b.DBHash = primitives.Sha(binaryDblock)
-	b.Header.SetFullHash(b.DBHash)
 	return b.DBHash
 }
 
