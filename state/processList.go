@@ -10,7 +10,6 @@ import (
 
 	"time"
 
-	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/entryCreditBlock"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/messages"
@@ -34,7 +33,7 @@ type ProcessList struct {
 	VMs       []*VM       // Process list for each server (up to 32)
 	ServerMap [10][64]int // Map of FedServers to all Servers for each minute
 
-	diffSigTally int /*     Tally of how many VMs have provided different
+	DiffSigTally int /*     Tally of how many VMs have provided different
 		                    Directory Block Signatures than what we have
 	                        (discard DBlock if > 1/2 have sig differences) */
 	// Maps
@@ -388,6 +387,20 @@ func (p *ProcessList) FinishedEOM() bool {
 	return true
 }
 
+func (p *ProcessList) ResetDiffSigTally() {
+	p.DiffSigTally = 0
+}
+
+func (p *ProcessList) IncrementDiffSigTally() {
+	p.DiffSigTally++
+}
+
+func (p *ProcessList) CheckDiffSigTally() {
+	if p.DiffSigTally > 0 && p.DiffSigTally > (len(p.FedServers)/2) {
+		p.State.DB.Delete([]byte{byte(databaseOverlay.DIRECTORYBLOCK)}, p.State.ProcessLists.Lists[0].DirectoryBlock.GetKeyMR().Bytes())
+	}
+}
+
 // Process messages and update our state.
 func (p *ProcessList) Process(state *State) (progress bool) {
 
@@ -420,7 +433,7 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 	for i := 0; i < len(p.FedServers); i++ {
 		// Just in case, set p.diffSigTally to 0 when initiating pass-through
 		if i == 0 {
-			p.diffSigTally = 0
+			p.ResetDiffSigTally()
 		}
 		vm := p.VMs[i]
 
@@ -431,25 +444,6 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 			if plist[j] == nil {
 				vm.missingTime = ask(vm, vm.missingTime, j)
 				break
-			}
-
-			// When processing DirectoryBlockSignatures, we check to see if the signed block
-			// matches our own saved block. If the majority of VMs' signatures do not match
-			// our saved block, we discard that block from our database.
-			if plist[j].Type() == constants.DIRECTORY_BLOCK_SIGNATURE_MSG {
-				dbs := plist[j].(*messages.DirectoryBlockSignature)
-				state.SetLeaderTimestamp(uint64(dbs.Timestamp.GetTime().Unix()))
-				state.GetDirectoryBlock().GetHeader().SetTimestamp(uint32(state.GetLeaderTimestamp()))
-
-				if !dbs.DirectoryBlockKeyMR.IsSameAs(state.ProcessLists.Lists[0].DirectoryBlock.GetKeyMR()) {
-					p.diffSigTally++
-					if p.diffSigTally > 0 && p.diffSigTally > (len(p.FedServers)/2) {
-						state.DB.Delete([]byte{byte(databaseOverlay.DIRECTORYBLOCK)}, state.ProcessLists.Lists[0].DirectoryBlock.GetKeyMR().Bytes())
-					}
-				}
-				if i >= len(p.FedServers) {
-					p.diffSigTally = 0
-				}
 			}
 
 			if p.Sealing && vm.Seal == 0 {

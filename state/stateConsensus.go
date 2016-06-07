@@ -7,6 +7,9 @@ package state
 import (
 	"fmt"
 
+	"hash"
+	"os"
+
 	"github.com/FactomProject/factomd/common/adminBlock"
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/entryBlock"
@@ -15,8 +18,6 @@ import (
 	"github.com/FactomProject/factomd/common/messages"
 	"github.com/FactomProject/factomd/common/primitives"
 	"github.com/FactomProject/factomd/util"
-	"hash"
-	"os"
 )
 
 var _ = fmt.Print
@@ -116,9 +117,9 @@ func (s *State) ProcessQueues() (progress bool) {
 		if _, ok := s.InternalReplay.Valid(msg.GetHash().Fixed(), int64(msg.GetTimestamp()), int64(s.GetTimestamp())); !ok {
 			msg = nil
 		} else if s.Leader {
-			s.LeaderExecute(msg)				// Just do Server execution for the message
+			s.LeaderExecute(msg) // Just do Server execution for the message
 		} else {
-			s.FollowerExecuteMsg(msg)		// Just do Server execution for the message
+			s.FollowerExecuteMsg(msg) // Just do Server execution for the message
 		}
 		s.XReview = s.XReview[1:]
 		s.UpdateState()
@@ -130,7 +131,6 @@ func (s *State) ProcessQueues() (progress bool) {
 			ack.FollowerExecute(s)
 		}
 	}
-
 
 	select {
 	case ack := <-s.ackQueue:
@@ -149,11 +149,11 @@ func (s *State) ProcessQueues() (progress bool) {
 						msg.ComputeVMIndex(s)
 						msg.LeaderExecute(s)
 					} else {
-						s.networkOutMsgQueue <-msg
+						s.networkOutMsgQueue <- msg
 						msg.FollowerExecute(s)
 					}
 				} else {
-					s.networkOutMsgQueue <-msg
+					s.networkOutMsgQueue <- msg
 					msg.FollowerExecute(s)
 				}
 
@@ -196,7 +196,7 @@ func (s *State) AddDBState(isNew bool,
 	if ht > s.LLeaderHeight {
 		s.LLeaderHeight = ht
 		s.ProcessLists.Get(ht + 1)
-		s.Holding = make(map[[32]byte] interfaces.IMsg)
+		s.Holding = make(map[[32]byte]interfaces.IMsg)
 		s.EOM = 0
 	}
 	//	dbh := directoryBlock.GetHeader().GetDBHeight()
@@ -306,7 +306,7 @@ func (s *State) FollowerExecuteAddData(msg interfaces.IMsg) {
 
 func (s *State) LeaderExecute(m interfaces.IMsg) {
 
-	for i:=0; s.UpdateState() && i<10; i++ {
+	for i := 0; s.UpdateState() && i < 10; i++ {
 
 	}
 
@@ -323,7 +323,7 @@ func (s *State) LeaderExecute(m interfaces.IMsg) {
 
 func (s *State) LeaderExecuteEOM(m interfaces.IMsg) {
 
-	for i:=0; s.UpdateState() && i<10; i++ {
+	for i := 0; s.UpdateState() && i < 10; i++ {
 
 	}
 
@@ -518,6 +518,18 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 	resp := dbs.Validate(s)
 	if resp != 1 {
 		return false
+	}
+
+	// When processing DirectoryBlockSignatures, we check to see if the signed block
+	// matches our own saved block. If the majority of VMs' signatures do not match
+	// our saved block, we discard that block from our database.
+	s.SetLeaderTimestamp(uint64(dbs.Timestamp.GetTime().Unix()))
+	s.GetDirectoryBlock().GetHeader().SetTimestamp(uint32(s.GetLeaderTimestamp()))
+	p := s.ProcessLists.LastList()
+
+	if !dbs.DirectoryBlockKeyMR.IsSameAs(s.ProcessLists.Lists[0].DirectoryBlock.GetKeyMR()) {
+		p.IncrementDiffSigTally()
+		p.CheckDiffSigTally()
 	}
 
 	return true
