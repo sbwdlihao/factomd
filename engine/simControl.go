@@ -263,8 +263,8 @@ func printSummary(summary *bool, listenTo *int) {
 			time.Sleep(100 * time.Millisecond)
 			for _, f := range fnodes {
 				prt = prt + fmt.Sprintf("%8s %s \n", f.State.FactomNodeName, f.State.ShortString())
-				prt = prt + fmt.Sprintf("DTS: %+v\n", f.State.GetDirectoryBlock().GetHeader().GetTimestamp())
-				prt = prt + fmt.Sprintf("FTS: %+v\n", f.State.FactoidState.GetCurrentBlock().GetCoinbaseTimestamp())
+				//prt = prt + fmt.Sprintf("DTS: %+v\n", f.State.GetDirectoryBlock().GetHeader().GetTimestamp())
+				//prt = prt + fmt.Sprintf("FTS: %+v\n", f.State.FactoidState.GetCurrentBlock().GetCoinbaseTimestamp())
 			}
 			if *listenTo >= 0 && *listenTo < len(fnodes) {
 

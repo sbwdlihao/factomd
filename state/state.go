@@ -191,6 +191,8 @@ func (s *State) Clone(number string) interfaces.IState {
 	clonePrivateKey := primitives.NewPrivateKeyFromHexBytes(shaHashOfNodeName.Bytes())
 	clone.LocalServerPrivKey = clonePrivateKey.PrivateKeyString()
 
+	clone.SetLeaderTimestamp(s.GetLeaderTimestamp())
+
 	//serverPrivKey primitives.PrivateKey
 	//serverPubKey  primitives.PublicKey
 
