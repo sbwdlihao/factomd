@@ -7,6 +7,7 @@ package directoryBlock
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
@@ -37,6 +38,10 @@ func (c *DirectoryBlock) GetEntryHashes() []interfaces.IHash {
 		answer[i] = entry.GetKeyMR()
 	}
 	return answer
+}
+
+func (c *DirectoryBlock) GetEntrySigHashes() []interfaces.IHash {
+	return nil
 }
 
 func (c *DirectoryBlock) Sort() {
@@ -73,12 +78,12 @@ func (c *DirectoryBlock) GetDBEntries() []interfaces.IDBEntry {
 }
 
 func (c *DirectoryBlock) GetKeyMR() interfaces.IHash {
-		keyMR, err := c.BuildKeyMerkleRoot()
-		if err != nil {
-			panic("Failed to build the key MR")
-		}
+	keyMR, err := c.BuildKeyMerkleRoot()
+	if err != nil {
+		panic("Failed to build the key MR")
+	}
 
-		c.KeyMR = keyMR
+	c.KeyMR = keyMR
 
 	return c.KeyMR
 }
