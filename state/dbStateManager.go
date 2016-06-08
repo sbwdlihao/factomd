@@ -218,6 +218,7 @@ func (list *DBStateList) UpdateState() (progress bool) {
 
 	list.Catchup()
 
+	printString := fmt.Sprintf("7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777\n")
 	for i, d := range list.DBStates {
 
 		// Must process blocks in sequence.  Missing a block says we must stop.
@@ -240,8 +241,15 @@ func (list *DBStateList) UpdateState() (progress bool) {
 					break
 				}
 			}
+			fmt.Print("Starting saving DBHeight ", d.DirectoryBlock.GetHeader().GetDBHeight(), " on ", list.State.GetFactomNodeName(), "\n")
 
-			//fmt.Println("Saving DBHeight ", d.DirectoryBlock.GetHeader().GetDBHeight(), " on ", list.State.GetFactomNodeName())
+			printString = fmt.Sprintf("7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777\n")
+			printString += fmt.Sprint("Ending saving DBHeight ", d.DirectoryBlock.GetHeader().GetDBHeight(), " on ", list.State.GetFactomNodeName(), "\n")
+			printString += fmt.Sprintf("DMR: %6x\n", d.DirectoryBlock.GetKeyMR().Bytes()[:3])
+			amr, _ := d.AdminBlock.GetKeyMR()
+			printString += fmt.Sprintf("AMR: %6x (%v)\n", amr.Bytes()[:3], len(d.AdminBlock.GetABEntries()))
+			printString += fmt.Sprintf("FMR: %6x (%v)\n", d.FactoidBlock.GetKeyMR().Bytes()[:3], len(d.FactoidBlock.GetTransactions()))
+			printString += fmt.Sprintf("ECMR: %6x (%v)\n", d.EntryCreditBlock.GetHash().Bytes()[:3], len(d.EntryCreditBlock.GetEntries()))
 
 			// If we have previous blocks, update blocks that this follower potentially constructed.  We can optimize and skip
 			// this step if we got the block from a peer.  TODO we must however check the sigantures on the
@@ -270,20 +278,31 @@ func (list *DBStateList) UpdateState() (progress bool) {
 				panic(err.Error())
 			}
 			pl := list.State.ProcessLists.Get(d.DirectoryBlock.GetHeader().GetDBHeight())
+			printString += fmt.Sprintf("#EB: %6v\n", len(pl.NewEBlocks))
 			for _, eb := range pl.NewEBlocks {
+				emr, _ := eb.KeyMR()
+				printString += fmt.Sprintf("EB: %6x\n", emr.Bytes()[:3])
 				if err := list.State.DB.ProcessEBlockMultiBatch(eb, false); err != nil {
 					panic(err.Error())
 				}
+				printString += fmt.Sprintf("77777------77777------77777------77777------77777------77777------77777------77777")
+				printString += fmt.Sprintf("#En: %v \n", len(eb.GetBody().GetEBEntries()))
+
 				for _, e := range eb.GetBody().GetEBEntries() {
+					printString += fmt.Sprintf("E: %6x\n", e.Fixed())
 					if err := list.State.DB.InsertEntry(pl.NewEntries[e.Fixed()]); err != nil {
 						panic(err.Error())
 					}
 				}
+				printString += fmt.Sprintf("17777------77777------77777------77777------77777------77777------77777------77771\n")
+
 			}
 
 			if err := list.State.DB.ExecuteMultiBatch(); err != nil {
 				panic(err.Error())
 			}
+
+			fmt.Printf(printString)
 
 		}
 
