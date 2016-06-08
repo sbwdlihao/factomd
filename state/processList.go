@@ -53,10 +53,10 @@ type ProcessList struct {
 	DirectoryBlock   interfaces.IDirectoryBlock
 
 	// Number of Servers acknowledged by Factom
-	Matryoshka   []interfaces.IHash      // Reverse Hash
-	AuditServers []interfaces.IFctServer // List of Audit Servers
-	FedServers   []interfaces.IFctServer // List of Federated Servers
-
+	Matryoshka   []interfaces.IHash      	// Reverse Hash
+	AuditServers []interfaces.IFctServer 	// List of Audit Servers
+	FedServers   []interfaces.IFctServer 	// List of Federated Servers
+	FaultCnt     map[[32]byte]int  				// Count of faults against the Federated Servers
 	Sealing bool // We are in the process of sealing this process list
 }
 
@@ -112,6 +112,7 @@ func (p *ProcessList) Unseal(minute int) bool {
 
 // Returns the Virtual Server index for this hash for the given minute
 func (p *ProcessList) VMIndexFor(hash []byte) int {
+	return 0
 	v := uint64(0)
 	for _, b := range hash {
 		v += uint64(b)
@@ -415,27 +416,35 @@ func (p *ProcessList) CheckDiffSigTally() {
 func (p *ProcessList) Process(state *State) (progress bool) {
 
 	now := time.Now().Unix()
-	ask := func(vm *VM, thetime int64, j int) int64 {
+	ask := func(vmIndex int, vm *VM, thetime int64, j int) int64 {
 		if thetime == 0 {
 			thetime = now
 		}
-		if now-thetime > 2 {
+		if now-thetime > 1 {
 			missingMsgRequest := messages.NewMissingMsg(state, p.DBHeight, uint32(j))
 			if missingMsgRequest != nil {
 				state.NetworkOutMsgQueue() <- missingMsgRequest
 			}
 			thetime = now
 		}
+		if p.State.Leader && now-thetime > 2 {
+			id := p.FedServers[p.ServerMap[vm.MinuteComplete][vmIndex]].GetChainID()
+			sf := messages.NewServerFault(state.GetTimestamp(),id,vmIndex,p.DBHeight,uint32(j))
+			if sf != nil {
+				state.NetworkOutMsgQueue() <- sf
+			}
+		}
+
 		return thetime
 	}
 
 	if !p.good { // If we don't know this process list is good...
-		last := state.DBStates.Last() // Get our last state.
-		if last == nil {
+		prev := state.DBStates.Get(p.DBHeight-1)
+
+		if prev == nil {
 			return
 		}
-		lht := last.DirectoryBlock.GetHeader().GetDBHeight()
-		if !last.Saved || lht < p.DBHeight-1 {
+		if !prev.Saved {
 			return
 		}
 		p.good = true
@@ -452,12 +461,12 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 
 		for j := vm.Height; j < len(plist); j++ {
 			if plist[j] == nil {
-				vm.missingTime = ask(vm, vm.missingTime, j)
+				vm.missingTime = ask(i, vm, vm.missingTime, j)
 				break
 			}
 
 			if p.Sealing && vm.Seal == 0 {
-				vm.SealTime = ask(vm, vm.SealTime+1, vm.Height)
+				vm.SealTime = ask(i, vm, vm.SealTime+1, vm.Height)
 			}
 
 			thisAck := alist[j]
@@ -545,8 +554,10 @@ func (p *ProcessList) AddToProcessList(ack *messages.Ack, m interfaces.IMsg) {
 		p.State.StallAck(ack)
 		p.State.Holding[m.GetHash().Fixed()] = m
 		delete(p.State.Acks, ack.GetHash().Fixed())
-		//fmt.Println("dddd", hint, p.State.FactomNodeName, "Stall", m.String())
-		//fmt.Println("dddd", hint, p.State.FactomNodeName, "Stall", ack.String())
+		if p.State.DebugConsensus {
+			fmt.Println("dddd", hint, p.State.FactomNodeName, "Stall", m.String())
+			fmt.Println("dddd", hint, p.State.FactomNodeName, "Stall", ack.String())
+		}
 	}
 
 	outOfOrder := func(hint string) {

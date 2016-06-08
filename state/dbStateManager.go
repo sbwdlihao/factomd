@@ -204,8 +204,7 @@ func (list *DBStateList) FixupLinks(i int, d *DBState) {
 			}
 			d.DirectoryBlock.AddEntry(eb.GetChainID(), key)
 		}
-		d.DirectoryBlock.BuildBodyMR()
-
+		d.DirectoryBlock.BuildKeyMerkleRoot()
 		//d.DirectoryBlock.GetKeyMR()
 		//_, err := d.DirectoryBlock.BuildBodyMR()
 		//if err != nil {
@@ -257,7 +256,7 @@ func (list *DBStateList) UpdateState() (progress bool) {
 			if i > 0 {
 				list.FixupLinks(i, d)
 			}
-			d.DirectoryBlock.MarshalBinary()
+
 			d.dbstring = d.DirectoryBlock.String()
 
 			list.State.DB.StartMultiBatch()
@@ -266,17 +265,32 @@ func (list *DBStateList) UpdateState() (progress bool) {
 				panic(err.Error())
 			}
 
+			if d.DirectoryBlock.String() != d.dbstring {
+				panic("dddd Change 2")
+			}
+
 			if err := list.State.DB.ProcessABlockMultiBatch(d.AdminBlock); err != nil {
 				panic(err.Error())
+			}
+
+			if d.DirectoryBlock.String() != d.dbstring {
+				panic("dddd Change 3")
 			}
 
 			if err := list.State.DB.ProcessFBlockMultiBatch(d.FactoidBlock); err != nil {
 				panic(err.Error())
 			}
+			if d.DirectoryBlock.String() != d.dbstring {
+				panic("dddd Change 4")
+			}
 
 			if err := list.State.DB.ProcessECBlockMultiBatch(d.EntryCreditBlock, false); err != nil {
 				panic(err.Error())
 			}
+			if d.DirectoryBlock.String() != d.dbstring {
+				panic("dddd Change 5")
+			}
+
 			pl := list.State.ProcessLists.Get(d.DirectoryBlock.GetHeader().GetDBHeight())
 			printString += fmt.Sprintf("#EB: %6v\n", len(pl.NewEBlocks))
 			for _, eb := range pl.NewEBlocks {
@@ -298,11 +312,19 @@ func (list *DBStateList) UpdateState() (progress bool) {
 
 			}
 
+			if d.DirectoryBlock.String() != d.dbstring {
+				panic("dddd Change 6")
+			}
+
 			if err := list.State.DB.ExecuteMultiBatch(); err != nil {
 				panic(err.Error())
 			}
 
 			fmt.Printf(printString)
+
+			if d.DirectoryBlock.String() != d.dbstring {
+				panic("dddd Change 7")
+			}
 
 		}
 
@@ -325,7 +347,7 @@ func (list *DBStateList) UpdateState() (progress bool) {
 				fmt.Println(list.DBStates[i-1].dbstring)
 				fmt.Println(list.DBStates[i-1].DirectoryBlock.String())
 				fmt.Println(d.DirectoryBlock.String())
-				panic("Hashes have been altered for Directory Blocks")
+				panic(fmt.Sprintf("%s Hashes have been altered for Directory Blocks", list.State.FactomNodeName))
 			}
 		}
 
