@@ -95,14 +95,14 @@ func (s *State) Process() (progress bool) {
 	}
 
 	if s.EOM > 0 && s.LeaderPL.Unsealable(s.EOM) {
-		s.LeaderMinute++
+		s.LeaderMinute = s.EOM
 
 		switch {
-		case s.LeaderMinute <= 9:
+		case s.EOM <= 9:
 			s.LeaderPL = s.ProcessLists.Get(s.LLeaderHeight)
 			s.Leader, s.LeaderVMIndex = s.LeaderPL.GetVirtualServers(s.LeaderMinute, s.IdentityChainID)
 			s.NewMinute()
-		case s.LeaderMinute == 10:
+		case s.EOM == 10:
 			s.AddDBState(true, s.LeaderPL.DirectoryBlock, s.LeaderPL.AdminBlock, s.GetFactoidState().GetCurrentBlock(), s.LeaderPL.EntryCreditBlock)
 			s.LeaderPL = s.ProcessLists.Get(s.LLeaderHeight + 1)
 			s.Leader, s.LeaderVMIndex = s.LeaderPL.GetVirtualServers(0, s.IdentityChainID)
@@ -115,35 +115,53 @@ func (s *State) Process() (progress bool) {
 
 func (s *State) ProcessQueues() (progress bool) {
 
+	// Executing a message means looking if it is valid, checking if we are a leader.
+	executeMsg := func(msg interfaces.IMsg) (ret bool) {
+		_, ok := s.InternalReplay.Valid(msg.GetHash().Fixed(), int64(msg.GetTimestamp()/1000), int64(s.GetTimestamp()/1000))
+		if !ok {
+			if s.DebugConsensus {
+				fmt.Println("dddd msgQueue ok:", ok, msg.String())
+			}
+			return
+		}
+
+		switch msg.Validate(s) {
+		case 1:
+			if s.EOM == 0 {
+				if s.Leader {
+					msg.ComputeVMIndex(s)
+					msg.LeaderExecute(s)
+				} else {
+					msg.FollowerExecute(s)
+				}
+			} else {
+				msg.FollowerExecute(s)
+			}
+			ret = true
+		case 0: // Put at the end of the line, and hopefully we will resolve it.
+			s.Holding[msg.GetHash().Fixed()] = msg
+		default:
+			if s.DebugConsensus {
+				fmt.Println("dddd Deleted=== Msg:", s.FactomNodeName, msg.String())
+			}
+			delete(s.Acks, msg.GetHash().Fixed())
+			s.networkInvalidMsgQueue <- msg
+		}
+
+		return
+	}
+
 	// Reprocess any stalled Acknowledgements
 	for s.Leader && s.EOM == 0 && len(s.XReview) > 0 {
 		msg := s.XReview[0]
-		if _, ok := s.InternalReplay.Valid(msg.GetHash().Fixed(), int64(msg.GetTimestamp()/1000), int64(s.GetTimestamp()/1000)); !ok {
-			if s.DebugConsensus {
-				fmt.Println("dddd Repeat XReview", msg.String())
-			}
-			msg = nil
-		} else if s.Leader {
-			s.LeaderExecute(msg) // Just do Server execution for the message
-		} else {
-			s.FollowerExecuteMsg(msg) // Just do Server execution for the message
-		}
+		executeMsg(msg)
 		s.XReview = s.XReview[1:]
 		s.UpdateState()
 	}
 
 	if s.Leader && s.EOM == 0 && len(s.StallMsgs) > 0 {
 		msg := s.StallMsgs[0]
-		if _, ok := s.InternalReplay.Valid(msg.GetHash().Fixed(), int64(msg.GetTimestamp()/1000), int64(s.GetTimestamp()/1000)); !ok {
-			if s.DebugConsensus {
-				fmt.Println("dddd Repeat StallMsgs ", msg.String())
-			}
-			msg = nil
-		} else if s.Leader {
-			s.LeaderExecute(msg) // Just do Server execution for the message
-		} else {
-			s.FollowerExecuteMsg(msg) // Just do Server execution for the message
-		}
+		executeMsg(msg)
 		s.StallMsgs = s.StallMsgs[1:]
 		s.UpdateState()
 	}
@@ -167,34 +185,8 @@ func (s *State) ProcessQueues() (progress bool) {
 		}
 		progress = true
 	case msg := <-s.msgQueue:
-		_, ok := s.InternalReplay.Valid(msg.GetHash().Fixed(), int64(msg.GetTimestamp()/1000), int64(s.GetTimestamp()/1000))
-		if ok {
-			switch msg.Validate(s) {
-			case 1:
-				if s.EOM == 0 {
-					if s.Leader {
-						msg.ComputeVMIndex(s)
-						msg.LeaderExecute(s)
-					} else {
-						s.networkOutMsgQueue <- msg
-						msg.FollowerExecute(s)
-					}
-				} else {
-					s.networkOutMsgQueue <- msg
-					msg.FollowerExecute(s)
-				}
-
-			case 0: // Put at the end of the line, and hopefully we will resolve it.
-				s.Holding[msg.GetHash().Fixed()] = msg
-			default:
-				if s.DebugConsensus {
-					fmt.Println("dddd Deleted=== Msg:", s.FactomNodeName, msg.String())
-				}
-				delete(s.Acks, msg.GetHash().Fixed())
-				s.networkInvalidMsgQueue <- msg
-			}
-		} else if s.DebugConsensus {
-			fmt.Println("dddd msgQueue ok:", ok, msg.String())
+		if executeMsg(msg) {
+			s.networkOutMsgQueue <- msg
 		}
 	default:
 	}
@@ -335,7 +327,7 @@ func (s *State) FollowerExecuteAddData(msg interfaces.IMsg) {
 
 }
 
-func (s *State) FollowerExecuteSFault(m interfaces.IMsg){
+func (s *State) FollowerExecuteSFault(m interfaces.IMsg) {
 	sf, _ := m.(*messages.ServerFault)
 	pl := s.ProcessLists.Get(sf.DBHeight)
 	if pl != nil {
@@ -345,6 +337,13 @@ func (s *State) FollowerExecuteSFault(m interfaces.IMsg){
 
 		}
 	}
+}
+
+func (s *State) FollowerExecuteMMR(m interfaces.IMsg) {
+	mmr, _ := m.(*messages.MissingMsgResponse)
+	s.Holding[mmr.MsgResponse.GetHash().Fixed()] = mmr.MsgResponse
+	ackResp := mmr.AckResponse.(*messages.Ack)
+	s.OutOfOrderAck(ackResp)
 }
 
 func (s *State) LeaderExecute(m interfaces.IMsg) {
@@ -511,7 +510,7 @@ func (s *State) ProcessRevealEntry(dbheight uint32, m interfaces.IMsg) bool {
 				fmt.Printf("dddd %s %s\n", s.FactomNodeName, "Chain already exists", msg.String())
 			}
 			handleAsEntry = true
-		}else {
+		} else {
 
 			// Create a new Entry Block for a new Entry Block Chain
 			eb = entryBlock.NewEBlock()

@@ -53,11 +53,11 @@ type ProcessList struct {
 	DirectoryBlock   interfaces.IDirectoryBlock
 
 	// Number of Servers acknowledged by Factom
-	Matryoshka   []interfaces.IHash      	// Reverse Hash
-	AuditServers []interfaces.IFctServer 	// List of Audit Servers
-	FedServers   []interfaces.IFctServer 	// List of Federated Servers
-	FaultCnt     map[[32]byte]int  				// Count of faults against the Federated Servers
-	Sealing bool // We are in the process of sealing this process list
+	Matryoshka   []interfaces.IHash      // Reverse Hash
+	AuditServers []interfaces.IFctServer // List of Audit Servers
+	FedServers   []interfaces.IFctServer // List of Federated Servers
+	FaultCnt     map[[32]byte]int        // Count of faults against the Federated Servers
+	Sealing      bool                    // We are in the process of sealing this process list
 }
 
 type VM struct {
@@ -429,7 +429,7 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 		}
 		if p.State.Leader && now-thetime > 2 {
 			id := p.FedServers[p.ServerMap[vm.MinuteComplete][vmIndex]].GetChainID()
-			sf := messages.NewServerFault(state.GetTimestamp(),id,vmIndex,p.DBHeight,uint32(j))
+			sf := messages.NewServerFault(state.GetTimestamp(), id, vmIndex, p.DBHeight, uint32(j))
 			if sf != nil {
 				state.NetworkOutMsgQueue() <- sf
 			}
@@ -439,7 +439,7 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 	}
 
 	if !p.good { // If we don't know this process list is good...
-		prev := state.DBStates.Get(p.DBHeight-1)
+		prev := state.DBStates.Get(p.DBHeight - 1)
 
 		if prev == nil {
 			return

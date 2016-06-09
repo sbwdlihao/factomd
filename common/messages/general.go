@@ -47,6 +47,8 @@ func UnmarshalMessage(data []byte) (interfaces.IMsg, error) {
 		msg = new(InvalidDirectoryBlock)
 	case constants.MISSING_MSG:
 		msg = new(MissingMsg)
+	case constants.MISSING_MSG_RESPONSE:
+		msg = new(MissingMsgResponse)
 	case constants.MISSING_DATA:
 		msg = new(MissingData)
 	case constants.DATA_RESPONSE:
@@ -106,6 +108,8 @@ func MessageName(Type byte) string {
 		return "Invalid Directory Block"
 	case constants.MISSING_MSG:
 		return "Missing Msg"
+	case constants.MISSING_MSG_RESPONSE:
+		return "Missing Msg Response"
 	case constants.MISSING_DATA:
 		return "Missing Data"
 	case constants.DATA_RESPONSE:

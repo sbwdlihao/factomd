@@ -12,7 +12,7 @@ import (
 const (
 	EOM_MSG                       byte = iota // 0
 	ACK_MSG                                   // 1
-	FED_SERVER_FAULT_MSG     	                // 2
+	FED_SERVER_FAULT_MSG                      // 2
 	AUDIT_SERVER_FAULT_MSG                    // 3
 	COMMIT_CHAIN_MSG                          // 4
 	COMMIT_ENTRY_MSG                          // 5
@@ -29,10 +29,11 @@ const (
 	MISSING_MSG           // 15
 	MISSING_DATA          // 16
 	DATA_RESPONSE         // 17
+	MISSING_MSG_RESPONSE  //18
 
-	DBSTATE_MSG         // 18
-	DBSTATE_MISSING_MSG // 19
-	ADDSERVER_MSG       // 20
+	DBSTATE_MSG         // 19
+	DBSTATE_MISSING_MSG // 20
+	ADDSERVER_MSG       // 21
 )
 
 const (
