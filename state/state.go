@@ -12,6 +12,9 @@ import (
 	"strings"
 	"time"
 
+	"math/rand"
+	"sync"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/messages"
@@ -23,7 +26,6 @@ import (
 	"github.com/FactomProject/factomd/logger"
 	"github.com/FactomProject/factomd/util"
 	"github.com/FactomProject/factomd/wsapi"
-	"sync"
 )
 
 var _ = fmt.Print
@@ -59,6 +61,8 @@ type State struct {
 
 	IdentityChainID interfaces.IHash // If this node has an identity, this is it
 	Identities      []Identity       // Identities of all servers in management chain
+	Authorities      []Authority       // Identities of all servers in management chain
+	AuthorityServerCount	int 	// number of federated or audit servers allowed
 
 	// Just to print (so debugging doesn't drive functionaility)
 	Status    bool
@@ -70,6 +74,7 @@ type State struct {
 
 	tickerQueue            chan int
 	timerMsgQueue          chan interfaces.IMsg
+	timeoffset             int64
 	networkOutMsgQueue     chan interfaces.IMsg
 	networkInvalidMsgQueue chan interfaces.IMsg
 	inMsgQueue             chan interfaces.IMsg
@@ -87,9 +92,11 @@ type State struct {
 	Leader          bool
 	LeaderVMIndex   int
 	LeaderPL        *ProcessList
-	OneLeader				bool
+	OneLeader       bool
 	OutputAllowed   bool
-	LeaderMinute    int  // The minute that just was processed by the follower, (1-10), set with EOM
+	LeaderMinute    int // The minute that just was processed by the follower, (1-10), set with EOM
+	LastMinute      int
+	LastHeight      uint32
 	EOM             int  // Set to true when all Process Lists have finished a minute
 	NetStateOff     bool // Disable if true, Enable if false
 	DebugConsensus  bool // If true, dump consensus trace
@@ -204,6 +211,8 @@ func (s *State) Clone(number string) interfaces.IState {
 
 	clone.IdentityChainID = primitives.Sha([]byte(clone.FactomNodeName))
 	clone.Identities = s.Identities
+	clone.Authorities = s.Authorities
+	clone.AuthorityServerCount = s.AuthorityServerCount
 
 	//generate and use a new deterministic PrivateKey for this clone
 	shaHashOfNodeName := primitives.Sha([]byte(clone.FactomNodeName)) //seed the private key with node name
@@ -218,6 +227,8 @@ func (s *State) Clone(number string) interfaces.IState {
 	clone.FactoshisPerEC = s.FactoshisPerEC
 
 	clone.Port = s.Port
+
+	clone.OneLeader = s.OneLeader
 
 	return clone
 }
@@ -304,6 +315,7 @@ func (s *State) LoadConfig(filename string, folder string) {
 }
 
 func (s *State) Init() {
+	s.SetOut(true)
 
 	wsapi.InitLogs(s.LogPath+s.FactomNodeName+".log", s.LogLevel)
 
@@ -311,8 +323,9 @@ func (s *State) Init() {
 
 	log.SetLevel(s.ConsoleLogLevel)
 
-	s.tickerQueue = make(chan int, 10000)                        //ticks from a clock
-	s.timerMsgQueue = make(chan interfaces.IMsg, 10000)          //incoming eom notifications, used by leaders
+	s.tickerQueue = make(chan int, 10000)               //ticks from a clock
+	s.timerMsgQueue = make(chan interfaces.IMsg, 10000) //incoming eom notifications, used by leaders
+	s.timeoffset = int64(rand.Int63() % int64(time.Microsecond*10))
 	s.networkInvalidMsgQueue = make(chan interfaces.IMsg, 10000) //incoming message queue from the network messages
 	s.InvalidMessages = make(map[[32]byte]interfaces.IMsg, 0)
 	s.networkOutMsgQueue = make(chan interfaces.IMsg, 10000) //Messages to be broadcast to the network
@@ -414,16 +427,18 @@ func (s *State) Init() {
 	}
 
 	s.Println("\nRunning on the ", s.Network, "Network")
-	s.Println("\nExchange rate chain id set to ", s.GetFactoshisPerEC())
+	s.Println("\nExchange rate chain id set to ", s.FERChainId)
 	s.Println("\nExchange rate Authority Public Key set to ", s.ExchangeRateAuthorityAddress)
 
 	s.AuditHeartBeats = make([]interfaces.IMsg, 0)
 	s.FedServerFaults = make([][]interfaces.IMsg, 0)
 
 	s.initServerKeys()
-
+	s.AuthorityServerCount=0
 	LoadIdentityCache(s)
 	//StubIdentityCache(s)
+	LoadAuthorityCache(s)
+	
 
 	s.starttime = time.Now()
 }
@@ -449,7 +464,7 @@ func (s *State) SetEBDBHeightComplete(newHeight uint32) {
 
 func (s *State) GetEBlockKeyMRFromEntryHash(entryHash interfaces.IHash) interfaces.IHash {
 
-	entry, err := s.DB.FetchEntryByHash(entryHash)
+	entry, err := s.DB.FetchEntry(entryHash)
 	if err != nil {
 		return nil
 	}
@@ -457,7 +472,7 @@ func (s *State) GetEBlockKeyMRFromEntryHash(entryHash interfaces.IHash) interfac
 		dblock := s.GetDirectoryBlockByHeight(entry.GetDatabaseHeight())
 		for idx, ebHash := range dblock.GetEntryHashes() {
 			if idx > 2 {
-				thisBlock, err := s.DB.FetchEBlockByKeyMR(ebHash)
+				thisBlock, err := s.DB.FetchEBlock(ebHash)
 				if err == nil {
 					for _, attemptEntryHash := range thisBlock.GetEntryHashes() {
 						if attemptEntryHash.IsSameAs(entryHash) {
@@ -487,21 +502,21 @@ func (s *State) LoadDBState(dbheight uint32) (interfaces.IMsg, error) {
 	if dblk == nil {
 		return nil, nil
 	}
-	ablk, err := s.DB.FetchABlockByKeyMR(dblk.GetDBEntries()[0].GetKeyMR())
+	ablk, err := s.DB.FetchABlock(dblk.GetDBEntries()[0].GetKeyMR())
 	if err != nil {
 		return nil, err
 	}
 	if ablk == nil {
 		return nil, fmt.Errorf("ABlock not found")
 	}
-	ecblk, err := s.DB.FetchECBlockByHash(dblk.GetDBEntries()[1].GetKeyMR())
+	ecblk, err := s.DB.FetchECBlock(dblk.GetDBEntries()[1].GetKeyMR())
 	if err != nil {
 		return nil, err
 	}
 	if ecblk == nil {
 		return nil, fmt.Errorf("ECBlock not found")
 	}
-	fblk, err := s.DB.FetchFBlockByKeyMR(dblk.GetDBEntries()[2].GetKeyMR())
+	fblk, err := s.DB.FetchFBlock(dblk.GetDBEntries()[2].GetKeyMR())
 	if err != nil {
 		return nil, err
 	}
@@ -527,17 +542,17 @@ func (s *State) LoadDataByHash(requestedHash interfaces.IHash) (interfaces.Binar
 	var err error
 
 	// Check for Entry
-	result, err = s.DB.FetchEntryByHash(requestedHash)
+	result, err = s.DB.FetchEntry(requestedHash)
 	if result != nil && err == nil {
 		return result, 0, nil
 	}
 
 	// Check for Entry Block
-	result, err = s.DB.FetchEBlockByKeyMR(requestedHash)
+	result, err = s.DB.FetchEBlock(requestedHash)
 	if result != nil && err == nil {
 		return result, 1, nil
 	}
-	result, _ = s.DB.FetchEBlockByHash(requestedHash)
+	result, _ = s.DB.FetchEBlock(requestedHash)
 	if result != nil && err == nil {
 		return result, 1, nil
 	}
@@ -592,9 +607,9 @@ func (s *State) LoadSpecificMsgAndAck(dbheight uint32, vm int, plistheight uint3
 		return nil, nil, fmt.Errorf("State process list does not include requested message")
 	}
 
-	ackMsg, ok := s.ProcessLists.Get(dbheight).OldAcks[msg.GetHash().Fixed()]
+	ackMsg := procList.VMs[vm].ListAck[plistheight]
 
-	if !ok || ackMsg == nil {
+	if ackMsg == nil {
 		return nil, nil, fmt.Errorf("State process list does not include ack for message")
 	}
 
@@ -606,7 +621,7 @@ func (s *State) LoadSpecificMsgAndAck(dbheight uint32, vm int, plistheight uint3
 // It returns True if the EBlock is complete (all entries already exist in database)
 func (s *State) GetAllEntries(ebKeyMR interfaces.IHash) bool {
 	hasAllEntries := true
-	eblock, err := s.DB.FetchEBlockByKeyMR(ebKeyMR)
+	eblock, err := s.DB.FetchEBlock(ebKeyMR)
 	if err != nil {
 		return false
 	}
@@ -841,11 +856,12 @@ func (s *State) SetIsDoneReplaying() {
 	s.ReplayTimestamp = 0
 }
 
+// Returns a millisecond timestamp
 func (s *State) GetTimestamp() interfaces.Timestamp {
 	if s.IsReplaying == true {
 		return s.ReplayTimestamp
 	}
-	return *interfaces.NewTimeStampNow()
+	return interfaces.Timestamp(int64(*interfaces.NewTimeStampNow()) + s.timeoffset)
 }
 
 func (s *State) Sign(b []byte) interfaces.IFullSignature {
@@ -1041,10 +1057,13 @@ func (s *State) SetString() {
 	shorttime := time.Since(s.lasttime)
 	total := s.FactoidTrans + s.NewEntryChains + s.NewEntries
 	tps := float64(total) / float64(runtime.Seconds())
-	delta := (s.FactoidTrans + s.NewEntryChains + s.NewEntries) - s.transCnt
-	s.tps = float64(delta) / float64(shorttime.Seconds())
-	s.transCnt = total
-	s.lasttime = time.Now()
+	if shorttime > time.Second*3 {
+		delta := (s.FactoidTrans + s.NewEntryChains + s.NewEntries) - s.transCnt
+		s.tps = float64(delta) / float64(shorttime.Seconds())
+		s.lasttime = time.Now()
+		s.transCnt = total // transactions accounted for
+	}
+
 	s.serverPrt = fmt.Sprintf("%8s[%6x]%4s Save: %d[%6x] PL:%d/%d Min: %2v DBHT %v Min C/F %02v/%02v EOM %2v %3d-Fct %3d-EC %3d-E  %7.2f total tps %7.2f tps",
 		s.FactomNodeName,
 		s.IdentityChainID.Bytes()[:3],
