@@ -2,13 +2,14 @@ package state
 
 import (
 	//"encoding/hex"
-
+	"fmt"
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
 	"github.com/FactomProject/factomd/log"
 	"github.com/FactomProject/factomd/common/messages"
-
+	"os"
+	"bytes"
 )
 
 
@@ -50,10 +51,13 @@ func LoadAuthorityCache(st *State) {
 func LoadAuthorityByAdminBlockHeight(height uint32, st *State, update bool) {
 //	var id []Authority
 //	id = st.Authorities
+		fmt.Println("########################################################################################")
+		fmt.Println(height)
+		fmt.Println("########################################################################################")
 
 
-//dblk, _ := st.DB.FetchDBlockByHeight(uint32(height))
-
+dblk, _ := st.DB.FetchDBlockByHeight(uint32(height))
+fmt.Println("dblk:",dblk)
 
 
 	msg, err := st.LoadDBState(height)
@@ -69,14 +73,16 @@ func LoadAuthorityByAdminBlockHeight(height uint32, st *State, update bool) {
 		abBytes = abBytes[4:] //remove message count (we are parsing bytes instead of messages)
 		abBytes = abBytes[4:] //remove body size
 		// the rest is admin byte messages
-
+		fmt.Println("########################################################################################")
 		//loop through ABEntries
-	
-
+		fmt.Println("ABlock:",abBytes)
+	//entries := ABlock.GetABEntries()
 	ChainID := new(primitives.Hash)
 	var  AuthorityIndex int
-
-
+	var testBytes []byte
+	//var pubKey []byte
+	//var other []byte
+       //      fmt.Println("ABType:",abEnt.Type()," ABEntry:",abEnt.Hash())
 
 	for len(abBytes) > 0 {
 					switch abBytes[0] {
@@ -126,7 +132,7 @@ func LoadAuthorityByAdminBlockHeight(height uint32, st *State, update bool) {
 							log.Println("Invalid Length. Add AddFederatedServer AdminBlock Height:" + string(height))
 							return
 						}
-						
+						fmt.Println("abBytes:",abBytes)
 						ChainID.SetBytes(abBytes[1:32])
 						AuthorityIndex=isAuthorityChain(ChainID,st.Authorities)
 						if AuthorityIndex == -1 {
@@ -230,12 +236,17 @@ func LoadAuthorityByAdminBlockHeight(height uint32, st *State, update bool) {
 
 					
 					}
+fmt.Println("abBytes",abBytes)
+if bytes.Compare(testBytes,abBytes) == 0 {
 
+	os.Exit(0)
+}
+testBytes=abBytes
 
 		}		
 
 	} else {
-		
+		fmt.Println("Error: ", err, msg)
 	}
 
 }
