@@ -640,7 +640,8 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 		if dbstate.Saved {
 			return true
 		} else {
-			if s.DBStates.Get(int(dbheight)).DirectoryBlock.GetKeyMR().IsSameAs(dbs.DirectoryBlockKeyMR) {
+			fmt.Println("jjjjjjjjjjj2", dbstate.DirectoryBlock.GetKeyMR().String()[:6], dbs.DirectoryBlockKeyMR.String()[:6])
+			if dbstate.DirectoryBlock.GetKeyMR().IsSameAs(dbs.DirectoryBlockKeyMR) {
 				dbstate.ReadyToSave = true
 				fmt.Println("jjjjjjjjjjjjjj sDBSigProc111", s.LeaderPL.VMs[0].LeaderMinute)
 			} else {
