@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
@@ -119,6 +120,7 @@ func (m *DirectoryBlockSignature) Validate(state interfaces.IState) int {
 	}
 
 	if m.IsLocal() {
+		fmt.Println("jjjjjjjjjjjjjjj msg is local!")
 		return 1
 	}
 
