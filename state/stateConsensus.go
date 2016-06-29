@@ -645,6 +645,7 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 				fmt.Println("jjjjjjjjjjjjjj sDBSigProc111", s.LeaderPL.VMs[0].LeaderMinute)
 			} else {
 				fmt.Println("jjjjjjjjjjjjjj sDBSigProc2", s.LeaderPL.VMs[0].LeaderMinute)
+				s.UpdateState()
 			}
 		}
 	}
