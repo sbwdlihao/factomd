@@ -641,6 +641,7 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 			return true
 		} else {
 			dbstate.ReadyToSave = true
+			fmt.Println("jjjjjjjjjjjjjj sDBSigProc", s.LeaderPL.VMs[0].LeaderMinute)
 		}
 	}
 	return false
