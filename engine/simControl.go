@@ -447,6 +447,8 @@ func printSummary(summary *int, value int, listenTo *int) {
 		for _, f := range fnodes {
 
 			prt = prt + fmt.Sprintf("%s \n", f.State.ShortString())
+			prt = prt + fmt.Sprintf("DBTS: %v\n", f.State.GetDirectoryBlock().GetTimestamp())
+			prt = prt + fmt.Sprintf("FBTS: %v\n", f.State.FactoidState.GetCurrentBlock().GetCoinbaseTimestamp())
 		}
 
 		fmtstr := "%22s%s\n"
