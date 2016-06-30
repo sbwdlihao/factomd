@@ -242,6 +242,8 @@ func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
 
 	hashes := make([]interfaces.IHash, len(b.GetDBEntries()))
 	for i, entry := range b.GetDBEntries() {
+		fmt.Println("ECHAIN:", entry.GetChainID())
+		fmt.Println(entry.String())
 		data, err := entry.MarshalBinary()
 		if err != nil {
 			return nil, err
