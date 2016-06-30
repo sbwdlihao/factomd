@@ -237,10 +237,7 @@ func (b *DirectoryBlock) MarshalBinary() (data []byte, err error) {
 
 func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
 	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-	fmt.Println(len(b.GetDBEntries()))
-	fmt.Println("kkkkkkkkkkkkkkkkkkk11111111111kkkkkkkkkkkkkkkkkkkkkkk")
+	fmt.Println("Prev:", b.Header.GetPrevKeyMR().String(), ":", len(b.GetDBEntries()))
 
 	hashes := make([]interfaces.IHash, len(b.GetDBEntries()))
 	for i, entry := range b.GetDBEntries() {
@@ -260,9 +257,7 @@ func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
 	merkleRoot := merkleTree[len(merkleTree)-1]
 
 	b.GetHeader().SetBodyMR(merkleRoot)
-	fmt.Println("kkkkkkkkkkkkkkkkkkk2222222222222kkkkkkkkkkkkkkkkkkkkkkk")
-	fmt.Println(merkleRoot.String())
-	fmt.Println("kkkkkkkkkkkkkkkkkkk222222233333322222kkkkkkkkkkkkkkkkkkkkkkk")
+	fmt.Println("MR:", merkleRoot.String())
 
 	return merkleRoot, nil
 }
