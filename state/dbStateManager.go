@@ -193,10 +193,21 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 	}
 
 	hash, _ := p.EntryCreditBlock.HeaderHash()
+	fmt.Println("")
+	fmt.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
+	fmt.Println(hash.String())
+	fmt.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
+	fmt.Println("")
+
 	d.EntryCreditBlock.GetHeader().SetPrevHeaderHash(hash)
 
 	hash, _ = p.EntryCreditBlock.GetFullHash()
 	d.EntryCreditBlock.GetHeader().SetPrevFullHash(hash)
+	fmt.Println("")
+	fmt.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm2")
+	fmt.Println(hash.String())
+	fmt.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm2")
+	fmt.Println("")
 
 	d.AdminBlock.GetHeader().SetPrevFullHash(hash)
 
@@ -208,6 +219,12 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 	d.DirectoryBlock.GetHeader().SetPrevFullHash(p.DirectoryBlock.GetFullHash())
 	d.DirectoryBlock.GetHeader().SetPrevKeyMR(p.DirectoryBlock.GetKeyMR())
 	d.DirectoryBlock.GetHeader().SetTimestamp(list.State.GetLeaderTimestamp())
+
+	fmt.Println("")
+	fmt.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm3")
+	fmt.Println(d.EntryCreditBlock.String())
+	fmt.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm3")
+	fmt.Println("")
 
 	d.DirectoryBlock.SetABlockHash(d.AdminBlock)
 	d.DirectoryBlock.SetECBlockHash(d.EntryCreditBlock)
