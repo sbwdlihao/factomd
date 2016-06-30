@@ -584,8 +584,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 
 	}
 
-	s.EOMProcessed++
-
+	//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 	// After all EOM markers are processed, but before anything else is done
 	// we do any cleanup required.
 	if s.EOMProcessed == len(s.LeaderPL.FedServers) {
@@ -607,6 +606,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 		mn := entryCreditBlock.NewMinuteNumber2(e.Minute)
 		ecbody.AddEntry(mn)
 	}
+	s.EOMProcessed++
 
 	return true
 }
