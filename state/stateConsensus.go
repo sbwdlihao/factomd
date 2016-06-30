@@ -592,7 +592,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 	//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 	// After all EOM markers are processed, but before anything else is done
 	// we do any cleanup required.
-	if pl.EOMProcessed == len(s.LeaderPL.FedServers) {
+	if pl.EOMProcessed >= len(s.LeaderPL.FedServers) {
 
 		s.FactoidState.EndOfPeriod(int(e.Minute + 1))
 
@@ -614,6 +614,8 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 		fmt.Println(ecblk.String())
 		fmt.Println("cccccccccccccccccccccccccccccccccccccccccccc2")
 
+	} else {
+		fmt.Println("pppppppppppppppppppppppppppppppppppppppppppppppppppppp9", pl.EOMProcessed, "-", len(s.LeaderPL.FedServers))
 	}
 
 	return true
