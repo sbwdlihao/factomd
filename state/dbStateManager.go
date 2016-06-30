@@ -7,10 +7,11 @@ package state
 import (
 	"encoding/hex"
 	"fmt"
+	"time"
+
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/messages"
 	"github.com/FactomProject/factomd/log"
-	"time"
 )
 
 var _ = hex.EncodeToString
@@ -225,6 +226,7 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 		if err != nil {
 			panic(err.Error())
 		}
+		fmt.Println("LOOPADD:", key.String())
 		d.DirectoryBlock.AddEntry(eb.GetChainID(), key)
 	}
 

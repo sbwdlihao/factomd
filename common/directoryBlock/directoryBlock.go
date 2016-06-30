@@ -374,6 +374,7 @@ func (b *DirectoryBlock) AddEntry(chainID interfaces.IHash, keyMR interfaces.IHa
 		b.DBEntries = []interfaces.IDBEntry{}
 	}
 
+	fmt.Println("ADD:", keyMR.String(), "to", b.KeyMR.String())
 	return b.SetDBEntries(append(b.DBEntries, dbentry))
 }
 
