@@ -376,6 +376,7 @@ func (b *DirectoryBlock) AddEntry(chainID interfaces.IHash, keyMR interfaces.IHa
 		b.DBEntries = []interfaces.IDBEntry{}
 	}
 
+	fmt.Println("Just added: ", keyMR.String())
 	return b.SetDBEntries(append(b.DBEntries, dbentry))
 }
 
@@ -412,9 +413,9 @@ func NewDirectoryBlock(dbheight uint32, prev *DirectoryBlock) interfaces.IDirect
 	newdb.AddEntry(ecChainID, newECHash)
 	newdb.AddEntry(fbChainID, newFBHash)
 
-	fmt.Println("NEWA: ", abChainID.String()[:5], newABHash.String()[:5])
-	fmt.Println("NEWE:", ecChainID.String()[:5], newECHash.String()[:5])
-	fmt.Println("NEWF:", fbChainID.String()[:5], newFBHash.String()[:5])
+	fmt.Println("NEWA: ", abChainID.String(), newABHash.String())
+	fmt.Println("NEWE:", ecChainID.String(), newECHash.String())
+	fmt.Println("NEWF:", fbChainID.String(), newFBHash.String())
 
 	return newdb
 }
