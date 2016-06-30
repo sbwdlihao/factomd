@@ -123,6 +123,7 @@ func (s *State) Process() (progress bool) {
 			s.NewMinute()
 		case min == 0:
 			//fmt.Printf("dddd %20s %10s --- %10s %10v %10s %10v\n", "Process() lmin == 0", s.FactomNodeName, "LeaderMin", min, "DBHT", s.LeaderPL.DirectoryBlock.GetHeader().GetDBHeight())
+			fmt.Println("yyyyyyyyyyyyyyyyy", s.LeaderPL.EntryCreditBlock.String())
 			s.AddDBState(true, s.LeaderPL.DirectoryBlock, s.LeaderPL.AdminBlock, s.GetFactoidState().GetCurrentBlock(), s.LeaderPL.EntryCreditBlock)
 
 			s.LastHeight = s.LLeaderHeight
@@ -305,6 +306,8 @@ func (s *State) FollowerExecuteAck(msg interfaces.IMsg) {
 func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) {
 
 	dbstatemsg, _ := msg.(*messages.DBStateMsg)
+
+	fmt.Println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxj", dbstatemsg.EntryCreditBlock.String())
 
 	s.DBStates.LastTime = s.GetTimestamp()
 	dbstate := s.AddDBState(false, // Not a new block; got it from the network
