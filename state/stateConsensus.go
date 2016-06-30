@@ -591,7 +591,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 	//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 	// After all EOM markers are processed, but before anything else is done
 	// we do any cleanup required.
-	if s.EOMProcessed == len(s.LeaderPL.FedServers) {
+	if s.EOMProcessed >= len(s.LeaderPL.FedServers) {
 
 		s.FactoidState.EndOfPeriod(int(e.Minute + 1))
 
