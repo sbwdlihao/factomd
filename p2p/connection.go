@@ -182,7 +182,7 @@ func (c *Connection) runLoop() {
 				c.pingPeer()    // sends a ping periodically if things have been quiet
 				c.updateStats() // Update controller with metrics
 				if PeerSaveInterval < time.Since(c.timeLastUpdate) {
-					significant(c.peer.PeerIdent(), "runLoop() PeerSaveInterval interval %s is less than duration since last update: %s ", PeerSaveInterval.String(), time.Since(c.timeLastUpdate).String())
+					debug(c.peer.PeerIdent(), "runLoop() PeerSaveInterval interval %s is less than duration since last update: %s ", PeerSaveInterval.String(), time.Since(c.timeLastUpdate).String())
 					c.updatePeer() // every PeerSaveInterval * 0.90 we send an update peer to the controller.
 				}
 			}

@@ -425,7 +425,6 @@ func (c *Controller) managePeers() {
 		duration := time.Since(c.discovery.lastPeerSave)
 		// Every so often, tell the discovery service to save peers.
 		if PeerSaveInterval < duration {
-			significant("controller", "Saving peers")
 			c.discovery.SavePeers()
 			c.discovery.PrintPeers() // No-op if debugging off.
 		}
@@ -440,7 +439,6 @@ func (c *Controller) managePeers() {
 	}
 }
 
-// updateConnectionAddressHash() updates the address index map to reflect all current connections
 func (c *Controller) updateConnectionAddressMap() {
 	c.connectionsByAddress = map[string]Connection{}
 	for _, value := range c.connections {
@@ -455,13 +453,14 @@ func (c *Controller) weAreNotAlreadyConnectedTo(peer Peer) bool {
 
 func (c *Controller) fillOutgoingSlots() {
 	c.updateConnectionAddressMap()
+	significant("controller", "##############\n##############\n##############\n##############\n##############\n")
 	significant("controller", "Connected peers:")
 	for key := range c.connectionsByAddress {
 		significant("controller", "%s", key)
 	}
 	peers := c.discovery.GetOutgoingPeers()
 	if len(peers) < NumberPeersToConnect*2 {
-		c.discovery.GetOutgoingPeers()
+		c.discovery.DiscoverPeers()
 		peers = c.discovery.GetOutgoingPeers()
 	}
 	// dial into the peers
@@ -490,6 +489,7 @@ func (c *Controller) networkStatusReport() {
 	// silence("ctrlr", "networkStatusReport() NetworkStatusInterval: %s reportDuration: %s c.lastStatusReport: %s", NetworkStatusInterval.String(), reportDuration.String(), c.lastPeerManagement.String())
 	if reportDuration > NetworkStatusInterval {
 		c.lastStatusReport = time.Now()
+		c.updateConnectionAddressMap()
 		silence("ctrlr", "###################################")
 		silence("ctrlr", " Network Controller Status Report:")
 		silence("ctrlr", "===================================")
