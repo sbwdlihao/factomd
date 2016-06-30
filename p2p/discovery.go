@@ -50,6 +50,7 @@ func (d *Discovery) Init(peersFile string) *Discovery {
 
 // UpdatePeer updates the values in our known peers. Creates peer if its not in there.
 func (d *Discovery) updatePeer(peer Peer) {
+	significant("discovery", "Updating peer: %v", peer)
 	UpdateKnownPeers.Lock()
 	d.knownPeers[peer.Address] = peer
 	UpdateKnownPeers.Unlock()
@@ -69,17 +70,6 @@ func (d *Discovery) isPeerPresent(peer Peer) bool {
 	_, present := d.knownPeers[peer.Address]
 	UpdateKnownPeers.Unlock()
 	return present
-}
-
-// PrintPeers Print details about the known peers
-func (d *Discovery) PrintPeers() {
-	note("discovery", "Peer Report:")
-	UpdateKnownPeers.Lock()
-	for key, value := range d.knownPeers {
-		note("discovery", "%s \t Address: %s \t Port: %s \tQuality: %d Source: %+v", key, value.Address, value.Port, value.QualityScore, value.Source)
-	}
-	UpdateKnownPeers.Unlock()
-	note("discovery", "End Peer Report\n\n\n\n")
 }
 
 // LoadPeers loads the known peers from disk OVERWRITING PREVIOUS VALUES
@@ -257,7 +247,7 @@ func (d *Discovery) getPeerSelection() []byte {
 }
 
 // DiscoverPeers gets a set of peers from a DNS Seed
-func (d *Discovery) DiscoverPeers() {
+func (d *Discovery) DiscoverPeersFromSeed() {
 	resp, err := http.Get(d.seedURL)
 	if nil != err {
 		logerror("discovery", "DiscoverPeers getting peers from %s produced error %+v", d.seedURL, err)
@@ -276,4 +266,15 @@ func (d *Discovery) DiscoverPeers() {
 		d.updatePeer(d.updatePeerSource(peer, "DNS Seed"))
 	}
 	silence("discovery", "DiscoverPeers got peers: %+v", lines)
+}
+
+// PrintPeers Print details about the known peers
+func (d *Discovery) PrintPeers() {
+	note("discovery", "Peer Report:")
+	UpdateKnownPeers.Lock()
+	for key, value := range d.knownPeers {
+		note("discovery", "%s \t Address: %s \t Port: %s \tQuality: %d Source: %+v", key, value.Address, value.Port, value.QualityScore, value.Source)
+	}
+	UpdateKnownPeers.Unlock()
+	note("discovery", "End Peer Report\n\n\n\n")
 }
