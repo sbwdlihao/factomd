@@ -239,7 +239,7 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 
 func (list *DBStateList) ProcessBlocks(d *DBState) (progress bool) {
 	if !d.Locked {
-		list.LastTime = list.State.GetTimestamp() // If I saved or processed stuff, I'm good for a while
+		list.LastTime.SetTimestamp(list.State.GetTimestamp()) // If I saved or processed stuff, I'm good for a while
 
 		// Any updates required to the state as established by the AdminBlock are applied here.
 		d.AdminBlock.UpdateState(list.State)

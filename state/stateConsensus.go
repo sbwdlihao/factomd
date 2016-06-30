@@ -113,7 +113,7 @@ func (s *State) Process() (progress bool) {
 				dbs.DirectoryBlockKeyMR = dbstate.DirectoryBlock.GetKeyMR()
 				dbs.ServerIdentityChainID = s.GetIdentityChainID()
 				dbs.DBHeight = s.LLeaderHeight
-				dbs.Timestamp = s.GetTimestamp()
+				dbs.Timestamp.SetTimestamp(s.GetTimestamp())
 				dbs.SetVMHash(nil)
 				dbs.SetVMIndex(s.LeaderVMIndex)
 				dbs.SetLocal(true)
