@@ -97,7 +97,6 @@ type State struct {
 	LastHeight uint32
 
 	EOM            bool // Set to true when the first EOM is encountered
-	EOMProcessed   int
 	DBSigProcessed int  // Number of DBSignatures received and processed.
 	Saving         bool // True if we are in the process of saving to the database
 

@@ -101,7 +101,7 @@ func (s *State) Process() (progress bool) {
 		s.Saving = false
 	}
 
-	if s.EOM && s.EOMProcessed >= len(s.LeaderPL.FedServers) {
+	if s.EOM && s.LeaderPL.EOMProcessed >= len(s.LeaderPL.FedServers) {
 
 		//fmt.Printf("dddd %20s %10s --- %10s %10v %10s %10v %10s %10v %10s %10v\n", "NEW MINUTE", s.FactomNodeName, "EOM", s.EOM,
 		//	"EomCnt:", s.EOMProcessed, "FedServ#", len(s.ProcessLists.Get(s.LLeaderHeight).FedServers), "Saving", s.Saving)
@@ -583,16 +583,16 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 
 	if !s.EOM {
 		s.EOM = true
-		s.EOMProcessed = 0
+		pl.EOMProcessed = 0
 
 	}
 
-	s.EOMProcessed++
+	pl.EOMProcessed++
 
 	//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 	// After all EOM markers are processed, but before anything else is done
 	// we do any cleanup required.
-	if s.EOMProcessed == len(s.LeaderPL.FedServers) {
+	if pl.EOMProcessed == len(s.LeaderPL.FedServers) {
 
 		s.FactoidState.EndOfPeriod(int(e.Minute + 1))
 

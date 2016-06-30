@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"bytes"
+	"log"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/directoryBlock"
 	"github.com/FactomProject/factomd/database/databaseOverlay"
-	"log"
 
 	"time"
 
@@ -57,6 +58,7 @@ type ProcessList struct {
 	FedServers   []interfaces.IFctServer // List of Federated Servers
 	FaultCnt     map[[32]byte]int        // Count of faults against the Federated Servers
 	Sealing      bool                    // We are in the process of sealing this process list
+	EOMProcessed int
 }
 
 type VM struct {
@@ -665,6 +667,7 @@ func NewProcessList(state interfaces.IState, previous *ProcessList, dbheight uin
 	pl.DirectoryBlock = directoryBlock.NewDirectoryBlock(dbheight, nil)
 	pl.AdminBlock = s.NewAdminBlock(dbheight)
 	pl.EntryCreditBlock, err = entryCreditBlock.NextECBlock(nil)
+	pl.EOMProcessed = 0
 
 	pl.ResetDiffSigTally()
 
