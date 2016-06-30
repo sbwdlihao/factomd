@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/messages"
+	"github.com/FactomProject/factomd/common/primitives"
 	"github.com/FactomProject/factomd/log"
 	"time"
 )
@@ -37,7 +38,7 @@ type DBState struct {
 
 type DBStateList struct {
 	SrcNetwork          bool // True if I got this block from the network.
-	LastTime            interfaces.Timestamp
+	LastTime            primitives.Timestamp
 	SecondsBetweenTests int
 	Lastreq             int
 	State               *State
@@ -128,10 +129,10 @@ func (list *DBStateList) Catchup() {
 	dbsHeight := list.GetHighestRecordedBlock()
 
 	// We only check if we need updates once every so often.
-	if int(now)/1000-int(list.LastTime)/1000 < SecondsBetweenTests {
+	if int(now.GetTimeSeconds()-list.LastTime.GetTimeSeconds()) < SecondsBetweenTests {
 		return
 	}
-	list.LastTime = now
+	list.LastTime.SetTimestamp(now)
 
 	begin := -1
 	end := -1
@@ -178,7 +179,7 @@ func (list *DBStateList) Catchup() {
 		fmt.Println("dddd ======================Ask for blocks", begin, end2)
 
 		list.State.RunLeader = false
-		list.State.StartDelay = list.State.GetTimestamp()
+		list.State.StartDelay.SetTimestamp(list.State.GetTimestamp())
 		list.State.NetworkOutMsgQueue() <- msg
 	}
 
@@ -380,7 +381,7 @@ func (list *DBStateList) Highest() uint32 {
 func (list *DBStateList) Put(dbState *DBState) {
 
 	// Hold off on any requests if I'm actually processing...
-	list.LastTime = list.State.GetTimestamp()
+	list.LastTime.SetTimestamp(list.State.GetTimestamp())
 
 	dblk := dbState.DirectoryBlock
 	dbheight := dblk.GetHeader().GetDBHeight()

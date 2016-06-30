@@ -64,7 +64,7 @@ func (state *State) ValidatorLoop() {
 		// Sort the messages.
 		if msg != nil {
 			if state.IsReplaying == true {
-				state.ReplayTimestamp = msg.GetTimestamp()
+				state.ReplayTimestamp.SetTimestamp(msg.GetTimestamp())
 			}
 			if _, ok := msg.(*messages.Ack); ok {
 				state.ackQueue <- msg
@@ -86,7 +86,7 @@ func (t *Timer) timer(state *State, min int) {
 
 	eom := new(messages.EOM)
 	eom.Minute = byte(min)
-	eom.Timestamp = state.GetTimestamp()
+	eom.Timestamp.SetTimestamp(state.GetTimestamp())
 	eom.ChainID = state.GetIdentityChainID()
 	eom.Sign(state)
 	eom.SetLocal(true)

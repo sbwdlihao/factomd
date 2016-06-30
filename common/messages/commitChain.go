@@ -17,7 +17,7 @@ import (
 //A placeholder structure for messages
 type CommitChainMsg struct {
 	MessageBase
-	Timestamp   interfaces.Timestamp
+	Timestamp   primitives.Timestamp
 	CommitChain *entryCreditBlock.CommitChain
 
 	Signature interfaces.IFullSignature
@@ -90,7 +90,7 @@ func (m *CommitChainMsg) GetMsgHash() interfaces.IHash {
 	return m.MsgHash
 }
 
-func (m *CommitChainMsg) GetTimestamp() interfaces.Timestamp {
+func (m *CommitChainMsg) GetTimestamp() interfaces.ITimestamp {
 	return m.Timestamp
 }
 
@@ -176,12 +176,10 @@ func (m *CommitChainMsg) UnmarshalBinaryData(data []byte) (newData []byte, err e
 	}
 	newData = newData[1:]
 
-	t := new(interfaces.Timestamp)
-	newData, err = t.UnmarshalBinaryData(newData)
+	newData, err = m.Timestamp.UnmarshalBinaryData(newData)
 	if err != nil {
 		return nil, err
 	}
-	m.Timestamp = *t
 
 	cc := entryCreditBlock.NewCommitChain()
 	newData, err = cc.UnmarshalBinaryData(newData)

@@ -60,7 +60,7 @@ func (s *State) Process() (progress bool) {
 	if !s.RunLeader {
 		//fmt.Printf("dddd %20s %10s --- \n", "Process() Start", s.FactomNodeName)
 		now := s.GetTimestamp() // Timestamps are in milliseconds, so wait 20
-		if now-s.StartDelay > 5*1000 {
+		if now.GetTimeMilli()-s.StartDelay.GetTimeMilli() > 5*1000 {
 			s.RunLeader = true
 		}
 		s.LeaderPL = s.ProcessLists.Get(s.LLeaderHeight)
@@ -85,7 +85,7 @@ func (s *State) Process() (progress bool) {
 			dbs.DirectoryBlockKeyMR = dbstate.DirectoryBlock.GetKeyMR()
 			dbs.ServerIdentityChainID = s.GetIdentityChainID()
 			dbs.DBHeight = s.LLeaderHeight
-			dbs.Timestamp = s.GetTimestamp()
+			dbs.Timestamp.SetTimestamp(s.GetTimestamp())
 			dbs.SetVMHash(nil)
 			dbs.SetVMIndex(s.LeaderVMIndex)
 			dbs.SetLocal(true)
@@ -306,7 +306,7 @@ func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) {
 
 	dbstatemsg, _ := msg.(*messages.DBStateMsg)
 
-	s.DBStates.LastTime = s.GetTimestamp()
+	s.DBStates.LastTime.SetTimestamp(s.GetTimestamp())
 	dbstate := s.AddDBState(false, // Not a new block; got it from the network
 		dbstatemsg.DirectoryBlock,
 		dbstatemsg.AdminBlock,
@@ -840,7 +840,7 @@ func (s *State) NewAck(msg interfaces.IMsg) (iack interfaces.IMsg) {
 	ack.DBHeight = s.LLeaderHeight
 	ack.VMIndex = vmIndex
 	ack.Minute = byte(s.ProcessLists.Get(s.LLeaderHeight).VMs[vmIndex].LeaderMinute)
-	ack.Timestamp = s.GetTimestamp()
+	ack.Timestamp.SetTimestamp(s.GetTimestamp())
 	ack.MessageHash = msg.GetMsgHash()
 	ack.LeaderChainID = s.IdentityChainID
 

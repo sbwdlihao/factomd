@@ -19,7 +19,7 @@ import (
 
 type DataResponse struct {
 	MessageBase
-	Timestamp interfaces.Timestamp
+	Timestamp primitives.Timestamp
 
 	DataType   int // 0 = Entry, 1 = EntryBlock
 	DataHash   interfaces.IHash
@@ -96,7 +96,7 @@ func (m *DataResponse) Bytes() []byte {
 	return nil
 }
 
-func (m *DataResponse) GetTimestamp() interfaces.Timestamp {
+func (m *DataResponse) GetTimestamp() interfaces.ITimestamp {
 	return m.Timestamp
 }
 
@@ -338,7 +338,7 @@ func NewDataResponse(state interfaces.IState, dataObject interfaces.BinaryMarsha
 	msg := new(DataResponse)
 
 	msg.Peer2Peer = true
-	msg.Timestamp = state.GetTimestamp()
+	msg.Timestamp.SetTimestamp(state.GetTimestamp())
 
 	msg.DataHash = dataHash
 	msg.DataType = dataType

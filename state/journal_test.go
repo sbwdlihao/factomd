@@ -24,7 +24,7 @@ func TestJournal(t *testing.T) {
 	msg.MsgHash = primitives.NewZeroHash()
 	msg.MessageHash = primitives.NewZeroHash()
 	msg.SerialHash = primitives.NewZeroHash()
-	msg.Timestamp = interfaces.Timestamp(0x112233)
+	msg.Timestamp = primitives.Timestamp(0x112233)
 
 	s.JournalMessage(msg)
 }

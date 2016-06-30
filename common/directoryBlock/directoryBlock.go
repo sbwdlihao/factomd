@@ -336,7 +336,7 @@ func (b *DirectoryBlock) UnmarshalBinaryData(data []byte) (newData []byte, err e
 	return
 }
 
-func (h *DirectoryBlock) GetTimestamp() interfaces.Timestamp {
+func (h *DirectoryBlock) GetTimestamp() interfaces.ITimestamp {
 	return h.GetHeader().GetTimestamp()
 }
 

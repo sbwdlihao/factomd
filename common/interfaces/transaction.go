@@ -47,8 +47,8 @@ type ITransaction interface {
 	// Locktime serves as a nonce to make every transaction unique. Transactions
 	// that are more than 24 hours old are not included nor propagated through
 	// the network.
-	GetTimestamp() Timestamp
-	SetTimestamp(Timestamp)
+	GetTimestamp() ITimestamp
+	SetTimestamp(ITimestamp)
 	// Get a signature
 	GetSignatureBlock(i int) ISignatureBlock
 	SetSignatureBlock(i int, signatureblk ISignatureBlock)

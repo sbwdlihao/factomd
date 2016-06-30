@@ -18,7 +18,7 @@ import (
 
 type ChangeServerKeyMsg struct {
 	MessageBase
-	Timestamp        interfaces.Timestamp // Message Timestamp
+	Timestamp        primitives.Timestamp // Message Timestamp
 	IdentityChainID  interfaces.IHash     // ChainID of new server
 	AdminBlockChange byte
 	KeyType          byte
@@ -58,7 +58,7 @@ func (m *ChangeServerKeyMsg) Bytes() []byte {
 	return nil
 }
 
-func (m *ChangeServerKeyMsg) GetTimestamp() interfaces.Timestamp {
+func (m *ChangeServerKeyMsg) GetTimestamp() interfaces.ITimestamp {
 	return m.Timestamp
 }
 
@@ -267,7 +267,7 @@ func (m *ChangeServerKeyMsg) IsSameAs(b *ChangeServerKeyMsg) bool {
 	if b == nil {
 		return false
 	}
-	if uint64(m.Timestamp) != uint64(b.Timestamp) {
+	if m.Timestamp.GetTimeMilli() != b.Timestamp.GetTimeMilli() {
 		return false
 	}
 	if !m.IdentityChainID.IsSameAs(b.IdentityChainID) {
@@ -303,7 +303,7 @@ func NewChangeServerKeyMsg(state interfaces.IState, identityChain interfaces.IHa
 	msg.KeyType = keyType
 	msg.KeyPriority = keyPriority
 	msg.Key = key
-	msg.Timestamp = state.GetTimestamp()
+	msg.Timestamp.SetTimestamp(state.GetTimestamp())
 
 	return msg
 

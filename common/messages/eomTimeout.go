@@ -15,7 +15,7 @@ import (
 //A placeholder structure for messages
 type EOMTimeout struct {
 	MessageBase
-	Timestamp interfaces.Timestamp
+	Timestamp primitives.Timestamp
 
 	Signature interfaces.IFullSignature
 }
@@ -81,7 +81,7 @@ func (m *EOMTimeout) GetMsgHash() interfaces.IHash {
 	return m.MsgHash
 }
 
-func (m *EOMTimeout) GetTimestamp() interfaces.Timestamp {
+func (m *EOMTimeout) GetTimestamp() interfaces.ITimestamp {
 	return m.Timestamp
 }
 

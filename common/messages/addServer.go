@@ -19,7 +19,7 @@ import (
 
 type AddServerMsg struct {
 	MessageBase
-	Timestamp     interfaces.Timestamp // Message Timestamp
+	Timestamp     primitives.Timestamp // Message Timestamp
 	ServerChainID interfaces.IHash     // ChainID of new server
 	ServerType    int                  // 0 = Federated, 1 = Audit
 
@@ -56,7 +56,7 @@ func (m *AddServerMsg) Bytes() []byte {
 	return nil
 }
 
-func (m *AddServerMsg) GetTimestamp() interfaces.Timestamp {
+func (m *AddServerMsg) GetTimestamp() interfaces.ITimestamp {
 	return m.Timestamp
 }
 
@@ -234,7 +234,7 @@ func (m *AddServerMsg) IsSameAs(b *AddServerMsg) bool {
 	if b == nil {
 		return false
 	}
-	if uint64(m.Timestamp) != uint64(b.Timestamp) {
+	if m.Timestamp.GetTimeMilli() != b.Timestamp.GetTimeMilli() {
 		return false
 	}
 	if !m.ServerChainID.IsSameAs(b.ServerChainID) {
@@ -258,7 +258,7 @@ func NewAddServerMsg(state interfaces.IState, serverType int) interfaces.IMsg {
 	msg := new(AddServerMsg)
 	msg.ServerChainID = state.GetIdentityChainID()
 	msg.ServerType = serverType
-	msg.Timestamp = state.GetTimestamp()
+	msg.Timestamp.SetTimestamp(state.GetTimestamp())
 
 	return msg
 
