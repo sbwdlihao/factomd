@@ -7,6 +7,7 @@ package directoryBlock
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
@@ -235,6 +236,16 @@ func (b *DirectoryBlock) MarshalBinary() (data []byte, err error) {
 }
 
 func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
+	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+
+	fmt.Println(b.GetKeyMR().String())
+	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+	fmt.Println(len(b.GetDBEntries()))
+	fmt.Println("kkkkkkkkkkkkkkkkkkk11111111111kkkkkkkkkkkkkkkkkkkkkkk")
+
 	hashes := make([]interfaces.IHash, len(b.GetDBEntries()))
 	for i, entry := range b.GetDBEntries() {
 		data, err := entry.MarshalBinary()
@@ -242,6 +253,7 @@ func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
 			return nil, err
 		}
 		hashes[i] = primitives.Sha(data)
+		fmt.Println(i, ":", entry.GetKeyMR().String(), "---", hashes[i])
 	}
 
 	if len(hashes) == 0 {
@@ -252,6 +264,7 @@ func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
 	merkleRoot := merkleTree[len(merkleTree)-1]
 
 	b.GetHeader().SetBodyMR(merkleRoot)
+	fmt.Println("kkkkkkkkkkkkkkkkkkk2222222222222kkkkkkkkkkkkkkkkkkkkkkk")
 
 	return merkleRoot, nil
 }
