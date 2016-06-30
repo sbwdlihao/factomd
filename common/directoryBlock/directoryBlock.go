@@ -399,9 +399,22 @@ func NewDirectoryBlock(dbheight uint32, prev *DirectoryBlock) interfaces.IDirect
 	newdb.GetHeader().SetDBHeight(dbheight)
 	newdb.SetDBEntries(make([]interfaces.IDBEntry, 0))
 
-	newdb.AddEntry(primitives.NewHash(constants.ADMIN_CHAINID), primitives.NewZeroHash())
-	newdb.AddEntry(primitives.NewHash(constants.EC_CHAINID), primitives.NewZeroHash())
-	newdb.AddEntry(primitives.NewHash(constants.FACTOID_CHAINID), primitives.NewZeroHash())
+	abChainID := primitives.NewHash(constants.ADMIN_CHAINID)
+	newABHash := primitives.NewZeroHash()
+
+	ecChainID := primitives.NewHash(constants.EC_CHAINID)
+	newECHash := primitives.NewZeroHash()
+
+	fbChainID := primitives.NewHash(constants.FACTOID_CHAINID)
+	newFBHash := primitives.NewZeroHash()
+
+	newdb.AddEntry(abChainID, newABHash)
+	newdb.AddEntry(ecChainID, newECHash)
+	newdb.AddEntry(fbChainID, newFBHash)
+
+	fmt.Println("NEWA: ", abChainID.String()[:5], newABHash.String()[:5])
+	fmt.Println("NEWE:", ecChainID.String()[:5], newECHash.String()[:5])
+	fmt.Println("NEWF:", fbChainID.String()[:5], newFBHash.String()[:5])
 
 	return newdb
 }
