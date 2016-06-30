@@ -573,6 +573,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 	e := msg.(*messages.EOM)
 
 	fmt.Println("zzzzzzzzzzzzz Proc: ", int(e.Minute))
+	fmt.Println("zizizizizizizi e.DBH:", e.DBHeight, "dbh:", dbheight)
 
 	pl := s.ProcessLists.Get(dbheight)
 
@@ -586,9 +587,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 
 	}
 
-	if e.DBHeight == dbheight {
-		s.EOMProcessed++
-	}
+	s.EOMProcessed++
 
 	//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 	// After all EOM markers are processed, but before anything else is done
