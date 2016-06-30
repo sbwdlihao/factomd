@@ -226,7 +226,6 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 		if err != nil {
 			panic(err.Error())
 		}
-		fmt.Println("LOOPADD:", key.String())
 		d.DirectoryBlock.AddEntry(eb.GetChainID(), key)
 	}
 

@@ -133,6 +133,7 @@ func (c *DirectoryBlock) SetHeader(header interfaces.IDirectoryBlockHeader) {
 }
 
 func (c *DirectoryBlock) SetDBEntries(dbEntries []interfaces.IDBEntry) error {
+	fmt.Println("SetDBE")
 	c.DBEntries = dbEntries
 	c.GetHeader().SetBlockCount(uint32(len(dbEntries)))
 	_, err := c.BuildBodyMR()
@@ -334,6 +335,7 @@ func (b *DirectoryBlock) UnmarshalBinaryData(data []byte) (newData []byte, err e
 		}
 	}
 
+	fmt.Println("ATUM")
 	err = b.SetDBEntries(entries)
 	if err != nil {
 		return
@@ -374,7 +376,6 @@ func (b *DirectoryBlock) AddEntry(chainID interfaces.IHash, keyMR interfaces.IHa
 		b.DBEntries = []interfaces.IDBEntry{}
 	}
 
-	fmt.Println("ADD:", keyMR.String())
 	return b.SetDBEntries(append(b.DBEntries, dbentry))
 }
 
