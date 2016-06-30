@@ -57,6 +57,25 @@ func (c *DirectoryBlock) SetECBlockHash(ecBlock interfaces.IEntryCreditBlock) er
 	if err != nil {
 		return err
 	}
+
+	var fh string
+	fullHash, err := ecBlock.GetFullHash()
+	if err != nil {
+		fh = "*"
+	} else {
+		fh = fullHash.String()
+	}
+
+	normHash := ecBlock.GetHash()
+
+	fmt.Println(".")
+	fmt.Println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
+	fmt.Println(hash.String())
+	fmt.Println(fh)
+	fmt.Println(normHash.String())
+	fmt.Println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
+	fmt.Println(".")
+
 	c.SetEntryHash(hash, ecBlock.GetChainID(), 1)
 	return nil
 }
@@ -338,6 +357,10 @@ func (b *DirectoryBlock) UnmarshalBinaryData(data []byte) (newData []byte, err e
 	}
 
 	fmt.Println("ATUM")
+	fmt.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+	for aa, ent := range entries {
+		fmt.Println(aa, "::ijij::", ent.String())
+	}
 	err = b.SetDBEntries(entries)
 	if err != nil {
 		return
