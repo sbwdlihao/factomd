@@ -572,6 +572,8 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 
 	e := msg.(*messages.EOM)
 
+	fmt.Println("zzzzzzzzzzzzz Proc: ", int(e.Minute))
+
 	pl := s.ProcessLists.Get(dbheight)
 
 	vm := s.ProcessLists.Get(dbheight).VMs[msg.GetVMIndex()]
@@ -583,6 +585,8 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 		s.EOMProcessed = 0
 
 	}
+
+	s.EOMProcessed++
 
 	//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 	// After all EOM markers are processed, but before anything else is done
@@ -605,8 +609,11 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 		ecbody := ecblk.GetBody()
 		mn := entryCreditBlock.NewMinuteNumber2(e.Minute)
 		ecbody.AddEntry(mn)
+		fmt.Println("cccccccccccccccccccccccccccccccccccccccccccc")
+		fmt.Println(ecblk.String())
+		fmt.Println("cccccccccccccccccccccccccccccccccccccccccccc2")
+
 	}
-	s.EOMProcessed++
 
 	return true
 }
