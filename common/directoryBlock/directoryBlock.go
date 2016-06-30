@@ -265,6 +265,8 @@ func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
 
 	b.GetHeader().SetBodyMR(merkleRoot)
 	fmt.Println("kkkkkkkkkkkkkkkkkkk2222222222222kkkkkkkkkkkkkkkkkkkkkkk")
+	fmt.Println(merkleRoot.String())
+	fmt.Println("kkkkkkkkkkkkkkkkkkk222222233333322222kkkkkkkkkkkkkkkkkkkkkkk")
 
 	return merkleRoot, nil
 }
