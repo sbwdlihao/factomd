@@ -239,10 +239,6 @@ func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
 	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
 	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
 	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-
-	fmt.Println(b.GetKeyMR().String())
-	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
 	fmt.Println(len(b.GetDBEntries()))
 	fmt.Println("kkkkkkkkkkkkkkkkkkk11111111111kkkkkkkkkkkkkkkkkkkkkkk")
 
