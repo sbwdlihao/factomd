@@ -244,8 +244,11 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 			panic(err.Error())
 		}
 		d.DirectoryBlock.AddEntry(eb.GetChainID(), key)
+		fmt.Println("Justin bbbbbbbbbbbbbbbbbbbb:", key.String())
+
 	}
 
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: FixupLinks")
 	d.DirectoryBlock.BuildBodyMR()
 	d.DirectoryBlock.MarshalBinary()
 

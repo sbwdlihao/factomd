@@ -152,7 +152,7 @@ func (c *DirectoryBlock) SetHeader(header interfaces.IDirectoryBlockHeader) {
 }
 
 func (c *DirectoryBlock) SetDBEntries(dbEntries []interfaces.IDBEntry) error {
-	fmt.Println("SetDBE")
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: SetDBEntries")
 	c.DBEntries = dbEntries
 	c.GetHeader().SetBlockCount(uint32(len(dbEntries)))
 	_, err := c.BuildBodyMR()
@@ -208,6 +208,7 @@ func (e *DirectoryBlock) String() string {
 		out.WriteString(fmt.Sprintf("%20s %v\n", "KeyMR:", kmr.String()))
 	}
 
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: String()")
 	kmr, err = e.BuildBodyMR()
 	if err != nil {
 		out.WriteString(fmt.Sprintf("%20s %v\n", "BodyMR:", err))
@@ -233,6 +234,7 @@ func (b *DirectoryBlock) MarshalBinary() (data []byte, err error) {
 
 	b.Sort()
 
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: MarshalBinary")
 	b.BuildBodyMR()
 
 	count := uint32(len(b.GetDBEntries()))
@@ -257,18 +259,16 @@ func (b *DirectoryBlock) MarshalBinary() (data []byte, err error) {
 
 func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
 	fmt.Println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-	fmt.Println("Prev:", b.Header.GetPrevKeyMR().String(), ":", len(b.GetDBEntries()))
+	fmt.Println("Prev:", b.Header.GetPrevKeyMR().String())
 
 	hashes := make([]interfaces.IHash, len(b.GetDBEntries()))
 	for i, entry := range b.GetDBEntries() {
-		fmt.Println("ECHAIN:", entry.GetChainID())
-		fmt.Println(entry.String())
+		fmt.Println("kk:", entry.String())
 		data, err := entry.MarshalBinary()
 		if err != nil {
 			return nil, err
 		}
 		hashes[i] = primitives.Sha(data)
-		fmt.Println(i, ":", entry.GetKeyMR().String(), "---", hashes[i])
 	}
 
 	if len(hashes) == 0 {
@@ -280,6 +280,7 @@ func (b *DirectoryBlock) BuildBodyMR() (interfaces.IHash, error) {
 
 	b.GetHeader().SetBodyMR(merkleRoot)
 	fmt.Println("MR:", merkleRoot.String())
+	fmt.Println("")
 
 	return merkleRoot, nil
 }
@@ -293,6 +294,7 @@ func (b *DirectoryBlock) HeaderHash() (interfaces.IHash, error) {
 }
 
 func (b *DirectoryBlock) BodyKeyMR() interfaces.IHash {
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: BodyKeyMR")
 	key, _ := b.BuildBodyMR()
 	return key
 }
@@ -358,6 +360,7 @@ func (b *DirectoryBlock) UnmarshalBinaryData(data []byte) (newData []byte, err e
 
 	fmt.Println("ATUM")
 	fmt.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+	fmt.Println("Justin cccccccccccccc: UnmarshalBinary")
 	for aa, ent := range entries {
 		fmt.Println(aa, "::ijij::", ent.String())
 	}

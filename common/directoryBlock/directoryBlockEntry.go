@@ -7,6 +7,7 @@ package directoryBlock
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
@@ -79,6 +80,7 @@ func (e *DBEntry) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	if err != nil {
 		return
 	}
+	fmt.Println("Justin dddddddddddddddddddddddddddd: UnmarshalBinaryData DBEntry", e.KeyMR.String())
 
 	return
 }
