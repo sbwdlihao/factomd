@@ -44,6 +44,18 @@ func (c *DirectoryBlock) SetEntryHash(hash, chainID interfaces.IHash, index int)
 }
 
 func (c *DirectoryBlock) SetABlockHash(aBlock interfaces.IAdminBlock) error {
+	marshalledAB, err := aBlock.MarshalBinary()
+	if err != nil {
+		fmt.Println("Justin ggggggggggggggggggggggu bad1")
+		return err
+	}
+
+	err = aBlock.UnmarshalBinary(marshalledAB)
+	if err != nil {
+		fmt.Println("Justin ggggggggggggggggggggggu bad2")
+		return err
+	}
+
 	hash, err := aBlock.PartialHash()
 	if err != nil {
 		return err
