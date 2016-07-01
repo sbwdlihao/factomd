@@ -455,7 +455,7 @@ searchLoop:
 	if list.DBStates[index] == nil {
 		list.DBStates[index] = dbState
 	}
-	list.Complete = uint32(index)
+	//list.Complete = uint32(index)
 }
 
 func (list *DBStateList) Get(height int) *DBState {
