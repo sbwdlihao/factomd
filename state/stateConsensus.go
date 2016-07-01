@@ -317,7 +317,7 @@ func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) {
 		dbstatemsg.AdminBlock,
 		dbstatemsg.FactoidBlock,
 		dbstatemsg.EntryCreditBlock)
-	dbstate.Locked = true
+	dbstate.Locked = false
 	dbstate.ReadyToSave = true
 }
 
