@@ -442,9 +442,9 @@ searchLoop:
 	}
 
 	fmt.Println("Justin rrrrrrrrrrrrrrrrrrrrrr Put", dbState.DirectoryBlock.GetHeader().GetDBHeight())
-	dbState.DirectoryBlock.SetABlockHash(dbState.AdminBlock)
+	/*dbState.DirectoryBlock.SetABlockHash(dbState.AdminBlock)
 	dbState.DirectoryBlock.SetECBlockHash(dbState.EntryCreditBlock)
-	dbState.DirectoryBlock.SetFBlockHash(dbState.FactoidBlock)
+	dbState.DirectoryBlock.SetFBlockHash(dbState.FactoidBlock)*/
 
 	// make room for this entry.
 	for len(list.DBStates) <= index {
@@ -453,6 +453,7 @@ searchLoop:
 	if list.DBStates[index] == nil {
 		list.DBStates[index] = dbState
 	}
+	list.Complete = uint32(index)
 }
 
 func (list *DBStateList) Get(height int) *DBState {
