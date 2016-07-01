@@ -259,7 +259,8 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 }
 
 func (list *DBStateList) ProcessBlocks(i int, d *DBState) (progress bool) {
-	if !d.Saved {
+	fmt.Println("Justin hhhhhhhhhhhhhhhhhh ProcBlocks", i, d.Locked)
+	if !d.Locked {
 		list.LastTime = list.State.GetTimestamp() // If I saved or processed stuff, I'm good for a while
 
 		// Any updates required to the state as established by the AdminBlock are applied here.
@@ -276,6 +277,7 @@ func (list *DBStateList) ProcessBlocks(i int, d *DBState) (progress bool) {
 
 		// Step my counter of Complete blocks
 		if uint32(i) > list.Complete {
+			fmt.Println("Justin hhhhhhhhhhhhhhhhhhhh up", i, list.Complete)
 			list.Complete = uint32(i)
 		}
 		progress = true
@@ -285,7 +287,7 @@ func (list *DBStateList) ProcessBlocks(i int, d *DBState) (progress bool) {
 }
 
 func (list *DBStateList) SaveDBStateToDB(d *DBState) (progress bool) {
-
+	fmt.Println("Justin gggggggggggb SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight())
 	dblk, _ := list.State.DB.FetchDBKeyMRByHash(d.DirectoryBlock.GetKeyMR())
 	if d.Saved {
 		if dblk == nil {
@@ -428,6 +430,7 @@ searchLoop:
 		list.DBStates = dbstates
 		list.Base = list.Base + uint32(cnt) - keep
 		list.Complete = list.Complete - uint32(cnt) + keep
+		fmt.Println("Justin hhhhhhhhhhhhhhhhhhhhhhhhhhhhf", list.Complete)
 	}
 
 	index := int(dbheight) - int(list.Base)
