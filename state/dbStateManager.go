@@ -442,7 +442,6 @@ searchLoop:
 	dbState.DirectoryBlock.SetABlockHash(dbState.AdminBlock)
 	dbState.DirectoryBlock.SetECBlockHash(dbState.EntryCreditBlock)
 	dbState.DirectoryBlock.SetFBlockHash(dbState.FactoidBlock)
-	dbState.Locked = true
 
 	// make room for this entry.
 	for len(list.DBStates) <= index {
