@@ -274,10 +274,6 @@ func (list *DBStateList) ProcessBlocks(i int, d *DBState) (progress bool) {
 		// Promote the currently scheduled next FER
 		list.State.ProcessRecentFERChainEntries()
 
-		d.DirectoryBlock.SetABlockHash(d.AdminBlock)
-		d.DirectoryBlock.SetECBlockHash(d.EntryCreditBlock)
-		d.DirectoryBlock.SetFBlockHash(d.FactoidBlock)
-
 		// Step my counter of Complete blocks
 		if uint32(i) > list.Complete {
 			list.Complete = uint32(i)

@@ -49,6 +49,7 @@ func (c *DirectoryBlock) SetABlockHash(aBlock interfaces.IAdminBlock) error {
 		return err
 	}
 	fmt.Println("Justin zzzzzzzzzzzzzzzzzzzzzzzzzzzz SetABlockHash", hash.String())
+	fmt.Println("Ab:", aBlock.String())
 	c.SetEntryHash(hash, aBlock.GetChainID(), 0)
 	return nil
 }
@@ -60,6 +61,7 @@ func (c *DirectoryBlock) SetECBlockHash(ecBlock interfaces.IEntryCreditBlock) er
 	}
 
 	fmt.Println("Justin zzzzzzzzzzzzzzzzzzzzzzzzzzzz SetECBlockHash", hash.String())
+	fmt.Println("Eb:", ecBlock.String())
 
 	c.SetEntryHash(hash, ecBlock.GetChainID(), 1)
 	return nil
@@ -68,6 +70,8 @@ func (c *DirectoryBlock) SetECBlockHash(ecBlock interfaces.IEntryCreditBlock) er
 func (c *DirectoryBlock) SetFBlockHash(fBlock interfaces.IFBlock) error {
 	hash := fBlock.GetKeyMR()
 	fmt.Println("Justin zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz SetFBlockHash", hash.String())
+	fmt.Println("Fb:", fBlock.String())
+
 	c.SetEntryHash(hash, fBlock.GetChainID(), 2)
 	return nil
 }
