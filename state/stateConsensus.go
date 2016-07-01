@@ -655,12 +655,8 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 		if dbstate.Saved {
 			return true
 		} else {
-			if dbstate.Locked {
-				fmt.Println("Justin ooooiooooooooooy isLocked")
-				dbstate.ReadyToSave = true
-			} else {
-				fmt.Println("Justin ooooioooooooooo notLocked")
-			}
+			dbstate.ReadyToSave = true
+
 		}
 	}
 	return false
