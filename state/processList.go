@@ -387,11 +387,13 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 		prev := state.DBStates.Get(int(p.DBHeight - 1))
 
 		if prev == nil {
+			fmt.Println("Justin PREV IS NIL", p.DBHeight)
 			//fmt.Printf("dddd %20s %10s --- %10s %10v \n", "PLProcess-", p.State.FactomNodeName, "PrevHt", "<nil>")
 			return
 		}
 
 		if !prev.Locked {
+			fmt.Println("Justin PREV ISNT LOCKED", p.DBHeight)
 			//fmt.Printf("dddd %20s %10s --- %10s %10v \n", "PLProcess-", p.State.FactomNodeName, "PrevHt", p.DBHeight-1)
 			return
 		}
