@@ -309,7 +309,7 @@ func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) {
 
 	dbstatemsg, _ := msg.(*messages.DBStateMsg)
 
-	fmt.Println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxj", dbstatemsg.EntryCreditBlock.String())
+	fmt.Println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxj", dbstatemsg.DirectoryBlock.GetDatabaseHeight(), ":", dbstatemsg.EntryCreditBlock.String())
 
 	s.DBStates.LastTime = s.GetTimestamp()
 	dbstate := s.AddDBState(false, // Not a new block; got it from the network
@@ -655,7 +655,12 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 		if dbstate.Saved {
 			return true
 		} else {
-			dbstate.ReadyToSave = true
+			if dbstate.Locked {
+				fmt.Println("Justin ooooiooooooooooy isLocked")
+				dbstate.ReadyToSave = true
+			} else {
+				fmt.Println("Justin ooooioooooooooo notLocked")
+			}
 		}
 	}
 	return false
