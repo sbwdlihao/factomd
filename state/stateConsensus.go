@@ -217,6 +217,7 @@ func (s *State) AddDBState(isNew bool,
 	factoidBlock interfaces.IFBlock,
 	entryCreditBlock interfaces.IEntryCreditBlock) *DBState {
 
+	fmt.Println("Justin qqqqqqqqqqq AddDBState", isNew)
 	dbState := s.DBStates.NewDBState(isNew, directoryBlock, adminBlock, factoidBlock, entryCreditBlock)
 	s.DBStates.Put(dbState)
 	ht := dbState.DirectoryBlock.GetHeader().GetDBHeight()
