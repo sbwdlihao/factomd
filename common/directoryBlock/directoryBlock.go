@@ -48,6 +48,7 @@ func (c *DirectoryBlock) SetABlockHash(aBlock interfaces.IAdminBlock) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("Justin zzzzzzzzzzzzzzzzzzzzzzzzzzzz SetABlockHash", hash.String())
 	c.SetEntryHash(hash, aBlock.GetChainID(), 0)
 	return nil
 }
@@ -58,23 +59,7 @@ func (c *DirectoryBlock) SetECBlockHash(ecBlock interfaces.IEntryCreditBlock) er
 		return err
 	}
 
-	var fh string
-	fullHash, err := ecBlock.GetFullHash()
-	if err != nil {
-		fh = "*"
-	} else {
-		fh = fullHash.String()
-	}
-
-	normHash := ecBlock.GetHash()
-
-	fmt.Println(".")
-	fmt.Println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
-	fmt.Println(hash.String())
-	fmt.Println(fh)
-	fmt.Println(normHash.String())
-	fmt.Println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
-	fmt.Println(".")
+	fmt.Println("Justin zzzzzzzzzzzzzzzzzzzzzzzzzzzz SetECBlockHash", hash.String())
 
 	c.SetEntryHash(hash, ecBlock.GetChainID(), 1)
 	return nil
@@ -82,6 +67,7 @@ func (c *DirectoryBlock) SetECBlockHash(ecBlock interfaces.IEntryCreditBlock) er
 
 func (c *DirectoryBlock) SetFBlockHash(fBlock interfaces.IFBlock) error {
 	hash := fBlock.GetKeyMR()
+	fmt.Println("Justin zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz SetFBlockHash", hash.String())
 	c.SetEntryHash(hash, fBlock.GetChainID(), 2)
 	return nil
 }
@@ -133,6 +119,7 @@ func (c *DirectoryBlock) GetDBEntries() []interfaces.IDBEntry {
 }
 
 func (c *DirectoryBlock) GetKeyMR() interfaces.IHash {
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaaaaaaaaaa: GetKeyMR()")
 	keyMR, err := c.BuildKeyMerkleRoot()
 	if err != nil {
 		panic("Failed to build the key MR")
@@ -200,6 +187,7 @@ func (e *DirectoryBlock) JSONBuffer(b *bytes.Buffer) error {
 
 func (e *DirectoryBlock) String() string {
 	var out primitives.Buffer
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaaabbb String()")
 	kmr, err := e.BuildKeyMerkleRoot()
 
 	if err != nil {
@@ -308,6 +296,7 @@ func (b *DirectoryBlock) BuildKeyMerkleRoot() (keyMR interfaces.IHash, err error
 		return nil, err
 	}
 	hashes = append(hashes, headerHash)
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaaa BuildKeyMerkleRoot")
 	hashes = append(hashes, b.BodyKeyMR())
 	merkle := primitives.BuildMerkleTreeStore(hashes)
 	keyMR = merkle[len(merkle)-1] // MerkleRoot is not marshalized in Dir Block

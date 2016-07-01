@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+
 	"github.com/FactomProject/factomd/common/directoryBlock/dbInfo"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
@@ -376,6 +377,7 @@ func CreateReceipt(dbo interfaces.DBOverlay, entryID interfaces.IHash) (*Receipt
 		return nil, err
 	}
 	blockNode.Left = left.(*primitives.Hash)
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaa createReceipt")
 	blockNode.Right = dBlock.BodyKeyMR().(*primitives.Hash)
 	blockNode.Top = hash.(*primitives.Hash)
 	//fmt.Printf("dBlock blockNode - %v\n\n", blockNode)

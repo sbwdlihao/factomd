@@ -6,6 +6,7 @@ package databaseOverlay
 
 import (
 	"encoding/binary"
+	"fmt"
 	"sync"
 
 	"github.com/FactomProject/factomd/common/constants"
@@ -491,6 +492,7 @@ func (db *Overlay) GetEntryType(hash interfaces.IHash) (interfaces.IHash, error)
 				return dbEntry.GetChainID(), nil
 			}
 		}
+		fmt.Println("Justin dddddddddddddddddddddddd Overlay GetEntryType")
 		if dBlock.GetKeyMR().IsSameAs(hash) == true {
 			return dBlock.GetChainID(), nil
 		}

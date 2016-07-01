@@ -63,6 +63,7 @@ func (list *DBStateList) String() string {
 			if ds.DirectoryBlock != nil {
 				rec = "x"
 
+				fmt.Println("Justin ddddddddddddddddddddddddddd DBStateList String()")
 				dblk, _ := list.State.DB.FetchDBlock(ds.DirectoryBlock.GetKeyMR())
 				if dblk != nil {
 					rec = "s"

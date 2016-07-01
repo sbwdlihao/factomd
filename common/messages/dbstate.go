@@ -227,6 +227,7 @@ func (m *DBStateMsg) MarshalBinary() ([]byte, error) {
 }
 
 func (m *DBStateMsg) String() string {
+	fmt.Println("Justin ccccccccccccccccccccccccccccccc DBStateMsg String()")
 	return fmt.Sprintf("DBState: ht:%3d dblock %6x admin %6x fb %6x ec %6x hash %6x",
 		m.DirectoryBlock.GetHeader().GetDBHeight(),
 		m.DirectoryBlock.GetKeyMR().Bytes()[:3],

@@ -82,6 +82,7 @@ func (s *State) Process() (progress bool) {
 		//fmt.Printf("dddd %20s %10s --- %10s %10v %10s %10v %10s %10v\n", "NEW BLOCK", s.FactomNodeName, "DBHeight", s.LLeaderHeight, "Leader", s.Leader, "VM", s.LeaderVMIndex)
 		if s.Leader && dbstate != nil {
 			dbs := new(messages.DirectoryBlockSignature)
+			fmt.Println("Justin eeeeeeeeeeeeeeeeeeeeeeeeeeeeeee Process()")
 			dbs.DirectoryBlockKeyMR = dbstate.DirectoryBlock.GetKeyMR()
 			dbs.ServerIdentityChainID = s.GetIdentityChainID()
 			dbs.DBHeight = s.LLeaderHeight

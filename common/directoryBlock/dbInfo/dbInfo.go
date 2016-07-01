@@ -3,6 +3,8 @@ package dbInfo
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
+
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
 )
@@ -196,6 +198,7 @@ func NewDirBlockInfoFromDirBlock(dirBlock interfaces.IDirectoryBlock) *DirBlockI
 	dbi := new(DirBlockInfo)
 	dbi.DBHash = dirBlock.GetHash()
 	dbi.DBHeight = dirBlock.GetDatabaseHeight()
+	fmt.Println("Justin aaaaaaaaaaaaaaaaaaaaaaaaaaaabbb NewDirBlockInfoFromDirBlock")
 	dbi.DBMerkleRoot = dirBlock.GetKeyMR()
 	dbi.SetTimestamp(dirBlock.GetHeader().GetTimestamp())
 	dbi.BTCTxHash = primitives.NewZeroHash()
