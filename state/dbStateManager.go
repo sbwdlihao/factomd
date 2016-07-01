@@ -432,6 +432,7 @@ searchLoop:
 
 	index := int(dbheight) - int(list.Base)
 
+	fmt.Println("Justin, index is:", index, "and list.Complete is", list.Complete, "and cnt is ", cnt)
 	// If we have already processed this State, ignore it.
 	if index < int(list.Complete) {
 		return
@@ -482,6 +483,7 @@ func (list *DBStateList) NewDBState(isNew bool,
 	dbState.FactoidBlock = factoidBlock
 	dbState.EntryCreditBlock = entryCreditBlock
 
+	fmt.Println("Justin rrrrrrrrrrrrrrrrrrrrrrrrrrrrrx NewDBState", isNew, directoryBlock.GetDatabaseHeight())
 	list.Put(dbState)
 
 	return dbState
