@@ -441,13 +441,6 @@ searchLoop:
 		return
 	}
 
-	if cnt > 1 || list.Complete > 0 {
-		fmt.Println("Justin rrrrrrrrrrrrrrrrrrrrrr Put", dbState.DirectoryBlock.GetHeader().GetDBHeight())
-		dbState.DirectoryBlock.SetABlockHash(dbState.AdminBlock)
-		dbState.DirectoryBlock.SetECBlockHash(dbState.EntryCreditBlock)
-		dbState.DirectoryBlock.SetFBlockHash(dbState.FactoidBlock)
-	}
-
 	// make room for this entry.
 	for len(list.DBStates) <= index {
 		list.DBStates = append(list.DBStates, nil)
