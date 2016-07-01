@@ -370,6 +370,11 @@ func (list *DBStateList) UpdateState() (progress bool) {
 
 		if i > 0 {
 			progress = list.FixupLinks(list.DBStates[i-1], d)
+		} else {
+			d.DirectoryBlock.SetABlockHash(d.AdminBlock)
+			d.DirectoryBlock.SetECBlockHash(d.EntryCreditBlock)
+			d.DirectoryBlock.SetFBlockHash(d.FactoidBlock)
+			d.DirectoryBlock.BuildBodyMR()
 		}
 		progress = list.ProcessBlocks(i, d) || progress
 
