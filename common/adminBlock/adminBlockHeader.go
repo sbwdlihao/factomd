@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
@@ -133,6 +134,8 @@ func (b *ABlockHeader) UnmarshalBinaryData(data []byte) (newData []byte, err err
 
 // Read in the binary into the ABlockHeader.
 func (b *ABlockHeader) UnmarshalBinary(data []byte) (err error) {
+	fmt.Println("Justin 3x ABlockHeader about to UnMarshalBinaryData from UnmarshalBinary")
+
 	_, err = b.UnmarshalBinaryData(data)
 	return
 }

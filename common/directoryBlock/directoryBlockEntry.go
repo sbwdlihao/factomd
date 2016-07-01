@@ -86,6 +86,7 @@ func (e *DBEntry) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 }
 
 func (e *DBEntry) UnmarshalBinary(data []byte) (err error) {
+	fmt.Println("Justin 3x UnmarshalBinary DBEntry")
 	_, err = e.UnmarshalBinaryData(data)
 	return
 }

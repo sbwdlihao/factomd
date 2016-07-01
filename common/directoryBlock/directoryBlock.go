@@ -82,7 +82,6 @@ func (c *DirectoryBlock) SetECBlockHash(ecBlock interfaces.IEntryCreditBlock) er
 func (c *DirectoryBlock) SetFBlockHash(fBlock interfaces.IFBlock) error {
 	hash := fBlock.GetKeyMR()
 	fmt.Println("Justin zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz SetFBlockHash", hash.String())
-	fmt.Println("Fb:", fBlock.String())
 
 	c.SetEntryHash(hash, fBlock.GetChainID(), 2)
 	return nil
@@ -357,6 +356,7 @@ func (b *DirectoryBlock) UnmarshalBinaryData(data []byte) (newData []byte, err e
 	entries := make([]interfaces.IDBEntry, count)
 	for i := uint32(0); i < count; i++ {
 		entries[i] = new(DBEntry)
+		fmt.Println("Justin 3x UnmarshalBD about to UnMarshalBinaryData for subEntries")
 		newData, err = entries[i].UnmarshalBinaryData(newData)
 		if err != nil {
 			return

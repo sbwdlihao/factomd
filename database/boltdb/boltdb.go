@@ -116,6 +116,8 @@ func (db *BoltDB) Get(bucket []byte, key []byte, destination interfaces.BinaryMa
 		return nil, nil
 	}
 
+	fmt.Println("Justin 3x about to UnMarshalBinaryData from BoltDB Get")
+
 	_, err := destination.UnmarshalBinaryData(v)
 	if err != nil {
 		return nil, err

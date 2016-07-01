@@ -86,6 +86,8 @@ func (db *LevelDB) Get(bucket []byte, key []byte, destination interfaces.BinaryM
 		return nil, err
 	}
 
+	fmt.Println("Justin 3x about to UnMarshalBinaryData from LevelDB Get")
+
 	_, err = destination.UnmarshalBinaryData(data)
 	if err != nil {
 		return nil, err

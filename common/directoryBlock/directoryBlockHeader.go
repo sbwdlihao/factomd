@@ -202,6 +202,8 @@ func (b *DBlockHeader) UnmarshalBinaryData(data []byte) (newData []byte, err err
 }
 
 func (b *DBlockHeader) UnmarshalBinary(data []byte) (err error) {
+	fmt.Println("Justin 3x DBlockHeader about to UnMarshalBinaryData from UB")
+
 	_, err = b.UnmarshalBinaryData(data)
 	return
 }

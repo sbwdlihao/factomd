@@ -63,6 +63,8 @@ func (b ByteStore) CustomMarshalText() ([]byte, error) {
 // for the UnmarshalBinary() method from encode.  We define our own method that
 // makes the code easier to read and way more efficent.
 func (b *ByteStore) UnmarshalBinaryData(data []byte) ([]byte, error) {
+	fmt.Println("Justin 3x about to UnMarshalBinaryData from ByteSTore")
+
 	size, data := binary.BigEndian.Uint32(data), data[4:]
 	b.byteData = make([]byte, size, size)
 	copy(b.byteData, data[:size])

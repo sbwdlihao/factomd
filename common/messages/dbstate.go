@@ -156,6 +156,8 @@ func (m *DBStateMsg) UnmarshalBinaryData(data []byte) (newData []byte, err error
 	}
 
 	m.DirectoryBlock = new(directoryBlock.DirectoryBlock)
+	fmt.Println("Justin 3x UMBD about to UnMarshalBinaryData from DBStateMsg")
+
 	newData, err = m.DirectoryBlock.UnmarshalBinaryData(newData)
 	if err != nil {
 		return nil, err

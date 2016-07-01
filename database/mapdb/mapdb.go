@@ -5,6 +5,7 @@
 package mapdb
 
 import (
+	"fmt"
 	"sort"
 	"sync"
 
@@ -139,6 +140,9 @@ func (db *MapDB) Get(bucket, key []byte, destination interfaces.BinaryMarshallab
 	if v == nil {
 		return nil, nil
 	}
+
+	fmt.Println("Justin 3x about to UnMarshalBinaryData from MapDB Get")
+
 	_, err := destination.UnmarshalBinaryData(v)
 	if err != nil {
 		return nil, err
