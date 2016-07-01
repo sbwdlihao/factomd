@@ -260,7 +260,7 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 
 func (list *DBStateList) ProcessBlocks(i int, d *DBState) (progress bool) {
 	fmt.Println("Justin hhhhhhhhhhhhhhhhhh ProcBlocks", i, d.Locked)
-	if d.Locked {
+	if !d.Locked {
 		list.LastTime = list.State.GetTimestamp() // If I saved or processed stuff, I'm good for a while
 
 		// Any updates required to the state as established by the AdminBlock are applied here.
@@ -278,10 +278,10 @@ func (list *DBStateList) ProcessBlocks(i int, d *DBState) (progress bool) {
 		// Step my counter of Complete blocks
 		if uint32(i) > list.Complete {
 			fmt.Println("Justin hhhhhhhhhhhhhhhhhhhh up", i, list.Complete)
-			list.Complete = uint32(i)
+			list.Complete = uint32(i - 1)
 		}
 		progress = true
-		d.ReadyToSave = true // Only after all is done will I admit this state has been saved.
+		d.Locked = true // Only after all is done will I admit this state has been saved.
 	}
 	return
 }
