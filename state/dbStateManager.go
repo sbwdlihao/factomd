@@ -278,7 +278,7 @@ func (list *DBStateList) ProcessBlocks(i int, d *DBState) (progress bool) {
 		// Step my counter of Complete blocks
 		if uint32(i) > list.Complete {
 			fmt.Println("Justin hhhhhhhhhhhhhhhhhhhh up", i, list.Complete)
-			list.Complete = uint32(i - 1)
+			list.Complete = uint32(i)
 		}
 		progress = true
 		d.Locked = true // Only after all is done will I admit this state has been saved.
