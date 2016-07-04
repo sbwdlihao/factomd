@@ -33,7 +33,13 @@ func (state *State) ValidatorLoop() {
 
 			// Process any messages we might have queued up.
 			for i = 0; i < 10; i++ {
-				b, p := state.UpdateState(), state.Process()
+				fmt.Println("Justin VLP1")
+				p := state.Process()
+				fmt.Println("Justin VLP1 done")
+				fmt.Println("Justin VLB1")
+				b := state.UpdateState()
+				fmt.Println("Justin VLB1 done")
+
 				if !p && !b {
 					break
 				}
