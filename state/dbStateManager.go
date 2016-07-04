@@ -186,7 +186,6 @@ func (list *DBStateList) Catchup() {
 }
 
 func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
-
 	// If this block is new, then make sure all hashes are fully computed.
 	if !d.isNew {
 		return
@@ -236,6 +235,7 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 
 	progress = true
 	d.isNew = false
+	fmt.Println("Justin Fixup end:", d.DirectoryBlock.GetKeyMR())
 	return
 }
 
