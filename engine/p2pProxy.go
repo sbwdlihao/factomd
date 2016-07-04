@@ -75,7 +75,7 @@ func (f *P2PProxy) Send(msg interfaces.IMsg) error {
 		message.peerHash = ""
 	}
 	if len(f.BroadcastOut) < 10000 {
-		fmt.Println("Justin P2PProxy Send():", int(msg.Type()))
+		//fmt.Println("Justin P2PProxy Send():", int(msg.Type()))
 		f.BroadcastOut <- message
 	}
 	return nil

@@ -386,7 +386,7 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 		prev := state.DBStates.Get(int(p.DBHeight - 1))
 
 		if prev == nil {
-			fmt.Println("Justin Process (ProcessList) NO PREV")
+			//fmt.Println("Justin Process (ProcessList) NO PREV")
 			//fmt.Printf("dddd %20s %10s --- %10s %10v \n", "PLProcess-", p.State.FactomNodeName, "PrevHt", "<nil>")
 			return
 		}
@@ -447,7 +447,7 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 				}
 			}
 
-			fmt.Println("Justin Process (ProcessList) tryToProcess:", p.DBHeight, "(j is", j, ")")
+			//fmt.Println("Justin Process (ProcessList) tryToProcess:", p.DBHeight, "(j is", j, ")")
 			if vm.List[j].Process(p.DBHeight, state) { // Try and Process this entry
 
 				vm.Height = j + 1 // Don't process it again if the process worked.

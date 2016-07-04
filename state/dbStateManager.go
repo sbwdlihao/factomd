@@ -247,7 +247,7 @@ func (list *DBStateList) ProcessBlocks(d *DBState) (progress bool) {
 	list.LastTime = list.State.GetTimestamp() // If I saved or processed stuff, I'm good for a while
 
 	// Any updates required to the state as established by the AdminBlock are applied here.
-	fmt.Println("Justin DBStateList ProcessBlocks about to UpdateState")
+	//fmt.Println("Justin DBStateList ProcessBlocks about to UpdateState")
 	d.AdminBlock.UpdateState(list.State)
 
 	// Process the Factoid End of Block
@@ -271,9 +271,9 @@ func (list *DBStateList) ProcessBlocks(d *DBState) (progress bool) {
 }
 
 func (list *DBStateList) SaveDBStateToDB(d *DBState) (progress bool) {
-	fmt.Println("Justin DBStateList SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight(), d.DirectoryBlock.GetHash().String()[:10])
+	//fmt.Println("Justin DBStateList SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight(), d.DirectoryBlock.GetHash().String()[:10])
 	if !d.Locked || !d.ReadyToSave {
-		fmt.Println("Justin DBStateList SaveDBStateToDB NotLocked or NotReadyToSave")
+		//fmt.Println("Justin DBStateList SaveDBStateToDB NotLocked or NotReadyToSave")
 		return
 	}
 
@@ -285,7 +285,7 @@ func (list *DBStateList) SaveDBStateToDB(d *DBState) (progress bool) {
 				d.DirectoryBlock.GetHeader().GetDBHeight(),
 				d.DirectoryBlock.GetKeyMR().Bytes()))
 		}
-		fmt.Println("Justin DBStateList SaveDBStateToDB (already saved):", d.DirectoryBlock.GetDatabaseHeight())
+		//fmt.Println("Justin DBStateList SaveDBStateToDB (already saved):", d.DirectoryBlock.GetDatabaseHeight())
 		return
 	}
 
@@ -355,15 +355,15 @@ func (list *DBStateList) UpdateState() (progress bool) {
 		}
 
 		if i > 0 {
-			fmt.Println("Justin DBStateList UpdateState() FixupLinks", d.DirectoryBlock.GetDatabaseHeight())
+			//fmt.Println("Justin DBStateList UpdateState() FixupLinks", d.DirectoryBlock.GetDatabaseHeight())
 			progress = list.FixupLinks(list.DBStates[i-1], d)
 		}
-		fmt.Println("Justin DBStateList UpdateState() ProcessBlocks", d.DirectoryBlock.GetDatabaseHeight())
+		//fmt.Println("Justin DBStateList UpdateState() ProcessBlocks", d.DirectoryBlock.GetDatabaseHeight())
 
 		progress = list.ProcessBlocks(d) || progress
-		fmt.Println("Justin DBStateList UpdateState() SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight())
+		//fmt.Println("Justin DBStateList UpdateState() SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight())
 
-		fmt.Println("Justin LookAtDBlock Before Saving:", d.DirectoryBlock.GetHash().String()[:10])
+		//fmt.Println("Justin LookAtDBlock Before Saving:", d.DirectoryBlock.GetHash().String()[:10])
 		progress = list.SaveDBStateToDB(d) || progress
 
 		// Make sure the directory block is properly synced up with the prior block, if there

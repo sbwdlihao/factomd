@@ -33,12 +33,12 @@ func (state *State) ValidatorLoop() {
 
 			// Process any messages we might have queued up.
 			for i = 0; i < 10; i++ {
-				fmt.Println("Justin VLP1")
+				//fmt.Println("Justin VLP1")
 				p := state.Process()
-				fmt.Println("Justin VLP1 done")
-				fmt.Println("Justin VLB1")
+				//fmt.Println("Justin VLP1 done")
+				//fmt.Println("Justin VLB1")
 				b := state.UpdateState()
-				fmt.Println("Justin VLB1 done")
+				//fmt.Println("Justin VLB1 done")
 
 				if !p && !b {
 					break
@@ -62,7 +62,7 @@ func (state *State) ValidatorLoop() {
 			select {
 			case msg = <-state.InMsgQueue(): // Get message from the timer or input queue
 				state.JournalMessage(msg)
-				fmt.Println("Justin ValidatorLoop got", int(msg.Type()), "from InMsgQueue()")
+				//fmt.Println("Justin ValidatorLoop got", int(msg.Type()), "from InMsgQueue()")
 				break loop
 			default: // No messages? Sleep for a bit
 				time.Sleep(10 * time.Millisecond)
@@ -77,7 +77,7 @@ func (state *State) ValidatorLoop() {
 			if _, ok := msg.(*messages.Ack); ok {
 				state.ackQueue <- msg
 			} else {
-				fmt.Println("Justin ValidatorLoop feeding", int(msg.Type()), "into msgQueue")
+				//fmt.Println("Justin ValidatorLoop feeding", int(msg.Type()), "into msgQueue")
 				state.msgQueue <- msg
 			}
 		}
@@ -90,7 +90,7 @@ type Timer struct {
 }
 
 func (t *Timer) timer(state *State, min int) {
-	fmt.Println("Justin timer", min, "(", state.FactomNodeName, ")")
+	//fmt.Println("Justin timer", min, "(", state.FactomNodeName, ")")
 	t.lastMin = min
 
 	eom := new(messages.EOM)

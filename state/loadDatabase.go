@@ -43,7 +43,7 @@ func LoadDatabase(s *State) {
 						time.Sleep(100 * time.Millisecond)
 					}
 				}
-				fmt.Println("Justin LoadDatabase", blkCnt, "into InMsgQueue")
+				//fmt.Println("Justin LoadDatabase", blkCnt, "into InMsgQueue")
 				s.InMsgQueue() <- msg
 			} else {
 				break
@@ -67,7 +67,7 @@ func LoadDatabase(s *State) {
 		ablk.AddFedServer(primitives.Sha([]byte("FNode0")))
 
 		msg := messages.NewDBStateMsg(s.GetTimestamp(), dblk, ablk, fblk, ecblk)
-		fmt.Println("Justin LoadDatabase NEW into InMsgQueue")
+		//fmt.Println("Justin LoadDatabase NEW into InMsgQueue")
 		s.InMsgQueue() <- msg
 	}
 	s.Println(fmt.Sprintf("Loaded %d directory blocks on %s", blkCnt, s.FactomNodeName))

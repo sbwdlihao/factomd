@@ -28,7 +28,7 @@ func (lists *ProcessLists) LastList() *ProcessList {
 // is always the block above the HighestRecordedBlock, but we only care about messages that
 // are at the highest known block, as long as that is above the highest recorded block.
 func (lists *ProcessLists) UpdateState(dbheight uint32) (progress bool) {
-	fmt.Println("Justin ProcessLists UpdateState() DBH:", dbheight)
+	//fmt.Println("Justin ProcessLists UpdateState() DBH:", dbheight)
 	pl := lists.Get(dbheight)
 
 	// Look and see if we need to toss some previous blocks under construction.
