@@ -123,7 +123,7 @@ func (list *DBStateList) GetHighestRecordedBlock() uint32 {
 
 // Once a second at most, we check to see if we need to pull down some blocks to catch up.
 func (list *DBStateList) Catchup() {
-
+	fmt.Println("Justin Catchup")
 	now := list.State.GetTimestamp()
 
 	dbsHeight := list.GetHighestRecordedBlock()
@@ -414,7 +414,7 @@ func (list *DBStateList) Highest() uint32 {
 }
 
 func (list *DBStateList) Put(dbState *DBState) {
-
+	fmt.Println("Justin DBStateList Put", dbState.DirectoryBlock.GetKeyMR().String()[:10])
 	// Hold off on any requests if I'm actually processing...
 	list.LastTime = list.State.GetTimestamp()
 
