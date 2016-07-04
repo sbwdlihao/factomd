@@ -462,6 +462,8 @@ searchLoop:
 	dbState.DirectoryBlock.SetABlockHash(dbState.AdminBlock)
 	dbState.DirectoryBlock.SetECBlockHash(dbState.EntryCreditBlock)
 	dbState.DirectoryBlock.SetFBlockHash(dbState.FactoidBlock)
+	fmt.Println("Justin DBStateList Put (after)", dbState.DirectoryBlock.GetKeyMR().String()[:10])
+
 }
 
 func (list *DBStateList) Get(height int) *DBState {
