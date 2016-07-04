@@ -91,7 +91,7 @@ func (s *State) Process() (progress bool) {
 			if !s.BlockFinished {
 				s.UpdateState()
 			}
-			fmt.Println("Justin State Process() CurrentMinute is 0 so AddDBState... ProcList:", s.LeaderPL.String())
+			//fmt.Println("Justin State Process() CurrentMinute is 0 so AddDBState... ProcList:", s.LeaderPL.String())
 			dbstate := s.AddDBState(true, s.LeaderPL.DirectoryBlock, s.LeaderPL.AdminBlock, s.GetFactoidState().GetCurrentBlock(), s.LeaderPL.EntryCreditBlock)
 			if s.LLeaderHeight > 0 {
 				prev := s.DBStates.Get(int(s.LLeaderHeight))
@@ -147,7 +147,7 @@ func (s *State) ProcessQueues() (progress bool) {
 	executeMsg := func(msg interfaces.IMsg) (ret bool) {
 		_, ok := s.Replay.Valid(constants.INTERNAL_REPLAY, msg.GetMsgHash().Fixed(), msg.GetTimestamp(), s.GetTimestamp())
 		if !ok {
-			fmt.Println("Justin ProcessQueues exmsg REPLAY INVALID", int(msg.Type()))
+			//fmt.Println("Justin ProcessQueues exmsg REPLAY INVALID", int(msg.Type()))
 			return
 		}
 
@@ -160,7 +160,7 @@ func (s *State) ProcessQueues() (progress bool) {
 
 		switch msg.Validate(s) {
 		case 1:
-			fmt.Println("Justin ProcessQueues exmsg Validate 1", int(msg.Type()))
+			//fmt.Println("Justin ProcessQueues exmsg Validate 1", int(msg.Type()))
 			//fmt.Printf("dddd %20s %10s --- %10s %10v %10s %10v %10s %10v %10s %10v\n", "ProcessQ()>", s.FactomNodeName,
 			//	"EOM", s.EOM, "Saving", s.Saving, "RunLeader", s.RunLeader, "leader", s.Leader)
 			if s.Leader &&
@@ -174,17 +174,17 @@ func (s *State) ProcessQueues() (progress bool) {
 				}
 
 			} else {
-				fmt.Println("Justin ProcessQueues exmsg V1 FollEx", int(msg.Type()))
+				//fmt.Println("Justin ProcessQueues exmsg V1 FollEx", int(msg.Type()))
 				//fmt.Printf("dddd %20s %10s --- %10s %s \n", "xLeader()>", s.FactomNodeName, "Msg", msg.String())
 				msg.FollowerExecute(s)
 			}
 			ret = true
 		case 0:
-			fmt.Println("Justin ProcessQueues exmsg Validate 0", int(msg.Type()))
+			//fmt.Println("Justin ProcessQueues exmsg Validate 0", int(msg.Type()))
 			//fmt.Println("dddd msg holding", s.FactomNodeName, msg.String())
 			s.Holding[msg.GetMsgHash().Fixed()] = msg
 		default:
-			fmt.Println("Justin ProcessQueues exmsg Validate -1", int(msg.Type()))
+			//fmt.Println("Justin ProcessQueues exmsg Validate -1", int(msg.Type()))
 			if s.DebugConsensus {
 				//fmt.Println("dddd Deleted=== Msg:", s.FactomNodeName, msg.String())
 			}
@@ -210,9 +210,9 @@ func (s *State) ProcessQueues() (progress bool) {
 		}
 		progress = true
 	case msg := <-s.msgQueue:
-		fmt.Println("Justin ProcessQueues executing message", int(msg.Type()))
+		//fmt.Println("Justin ProcessQueues executing message", int(msg.Type()))
 		if executeMsg(msg) {
-			fmt.Println("Justin ProcessQueues sending", int(msg.Type()), "to networkOutMsgQueue")
+			//fmt.Println("Justin ProcessQueues sending", int(msg.Type()), "to networkOutMsgQueue")
 			s.networkOutMsgQueue <- msg
 		}
 	default:
@@ -230,7 +230,7 @@ func (s *State) AddDBState(isNew bool,
 	adminBlock interfaces.IAdminBlock,
 	factoidBlock interfaces.IFBlock,
 	entryCreditBlock interfaces.IEntryCreditBlock) *DBState {
-	fmt.Println("Justin AddDBState", directoryBlock.GetHash().String()[:10])
+	//fmt.Println("Justin AddDBState", directoryBlock.GetHash().String()[:10])
 
 	dbState := s.DBStates.NewDBState(isNew, directoryBlock, adminBlock, factoidBlock, entryCreditBlock)
 	s.DBStates.Put(dbState)
@@ -270,7 +270,7 @@ func (s *State) addEBlock(eblock interfaces.IEntryBlock) {
 //
 // Returns true if it finds a match, puts the message in holding, or invalidates the message
 func (s *State) FollowerExecuteMsg(m interfaces.IMsg) {
-	fmt.Println("Justin FollEx", int(m.Type()))
+	//fmt.Println("Justin FollEx", int(m.Type()))
 	s.Holding[m.GetMsgHash().Fixed()] = m
 	ack, _ := s.Acks[m.GetMsgHash().Fixed()].(*messages.Ack)
 	if ack != nil {
@@ -278,7 +278,7 @@ func (s *State) FollowerExecuteMsg(m interfaces.IMsg) {
 		m.SetMinute(ack.Minute)
 
 		pl := s.ProcessLists.Get(ack.DBHeight)
-		fmt.Println("Justin FollEx adding to proc list", int(m.Type()))
+		//fmt.Println("Justin FollEx adding to proc list", int(m.Type()))
 		pl.AddToProcessList(ack, m)
 	}
 }
@@ -288,16 +288,16 @@ func (s *State) FollowerExecuteMsg(m interfaces.IMsg) {
 //
 // Returns true if it finds a match, puts the message in holding, or invalidates the message
 func (s *State) FollowerExecuteEOM(m interfaces.IMsg) {
-	fmt.Println("Justin FollExEOM")
+	//fmt.Println("Justin FollExEOM")
 	if m.IsLocal() {
-		fmt.Println("Justin FollExEOM IsLocal")
+		//fmt.Println("Justin FollExEOM IsLocal")
 		return // This is an internal EOM message.  We are not a leader so ignore.
 	}
 
 	eom, _ := m.(*messages.EOM)
 
 	s.Holding[m.GetMsgHash().Fixed()] = m
-	fmt.Println("Justin FollExEOM Min:", int(eom.Minute))
+	//fmt.Println("Justin FollExEOM Min:", int(eom.Minute))
 	ack, _ := s.Acks[m.GetMsgHash().Fixed()].(*messages.Ack)
 	if ack != nil {
 
@@ -306,7 +306,7 @@ func (s *State) FollowerExecuteEOM(m interfaces.IMsg) {
 		m.SetMinute(eom.Minute + 1)
 
 		pl := s.ProcessLists.Get(ack.DBHeight)
-		fmt.Println("Justin FollExEOM adding to proc list Min:", int(eom.Minute))
+		//fmt.Println("Justin FollExEOM adding to proc list Min:", int(eom.Minute))
 		pl.AddToProcessList(ack, m)
 	}
 }
@@ -316,11 +316,11 @@ func (s *State) FollowerExecuteEOM(m interfaces.IMsg) {
 // message.
 func (s *State) FollowerExecuteAck(msg interfaces.IMsg) {
 	ack := msg.(*messages.Ack)
-	fmt.Println("Justin FollExAck", int(ack.Minute))
+	//fmt.Println("Justin FollExAck", int(ack.Minute))
 	s.Acks[ack.GetHash().Fixed()] = ack
 	m, _ := s.Holding[ack.GetHash().Fixed()]
 	if m != nil {
-		fmt.Println("Justin FollExAck follex", int(m.Type()), "(min:", int(ack.Minute), ")")
+		//fmt.Println("Justin FollExAck follex", int(m.Type()), "(min:", int(ack.Minute), ")")
 		m.FollowerExecute(s)
 	}
 }
@@ -328,7 +328,7 @@ func (s *State) FollowerExecuteAck(msg interfaces.IMsg) {
 func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) {
 
 	dbstatemsg, _ := msg.(*messages.DBStateMsg)
-	fmt.Println("Justin FollExDBState", int(dbstatemsg.GetMinute()), "---", dbstatemsg.DirectoryBlock.GetDatabaseHeight())
+	//fmt.Println("Justin FollExDBState", int(dbstatemsg.GetMinute()), "---", dbstatemsg.DirectoryBlock.GetDatabaseHeight())
 	s.DBStates.LastTime = s.GetTimestamp()
 	dbstate := s.AddDBState(false, // Not a new block; got it from the network
 		dbstatemsg.DirectoryBlock,
@@ -339,17 +339,17 @@ func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) {
 }
 
 func (s *State) FollowerExecuteAddData(msg interfaces.IMsg) {
-	fmt.Println("Justin FollExAddData", int(msg.Type()))
+	//fmt.Println("Justin FollExAddData", int(msg.Type()))
 	dataResponseMsg, ok := msg.(*messages.DataResponse)
 	if !ok {
-		fmt.Println("Justin FollExAddData NOT OK")
+		//fmt.Println("Justin FollExAddData NOT OK")
 		return
 	}
 
 	switch dataResponseMsg.DataType {
 	case 0: // DataType = entry
 		entry := dataResponseMsg.DataObject.(interfaces.IEBEntry)
-		fmt.Println("Justin FollExAddData Entry")
+		//fmt.Println("Justin FollExAddData Entry")
 		if entry.GetHash().IsSameAs(dataResponseMsg.DataHash) {
 
 			s.DB.InsertEntry(entry)
@@ -358,13 +358,13 @@ func (s *State) FollowerExecuteAddData(msg interfaces.IMsg) {
 	case 1: // DataType = eblock
 		eblock := dataResponseMsg.DataObject.(interfaces.IEntryBlock)
 		dataHash, _ := eblock.KeyMR()
-		fmt.Println("Justin FollExAddData Eblock", dataHash.String()[:10])
+		//fmt.Println("Justin FollExAddData Eblock", dataHash.String()[:10])
 		if dataHash.IsSameAs(dataResponseMsg.DataHash) {
-			fmt.Println("Justin FollExAddData Eblock Match!")
+			//fmt.Println("Justin FollExAddData Eblock Match!")
 			s.addEBlock(eblock)
 		}
 	default:
-		fmt.Println("Justin FollExAddData Bad Type")
+		//fmt.Println("Justin FollExAddData Bad Type")
 		s.networkInvalidMsgQueue <- msg
 	}
 
@@ -413,9 +413,9 @@ func (s *State) LeaderExecute(m interfaces.IMsg) {
 }
 
 func (s *State) LeaderExecuteEOM(m interfaces.IMsg) {
-	fmt.Println("Justin LeadExEOM")
+	//fmt.Println("Justin LeadExEOM")
 	if !m.IsLocal() || s.EOM || s.Saving {
-		fmt.Println("Justin LeadExEOM going thru to FollExEOM")
+		//fmt.Println("Justin LeadExEOM going thru to FollExEOM")
 		s.FollowerExecuteEOM(m)
 		return
 	}
@@ -427,7 +427,7 @@ func (s *State) LeaderExecuteEOM(m interfaces.IMsg) {
 	eom := m.(*messages.EOM)
 	vm := s.ProcessLists.Get(s.LLeaderHeight).VMs[s.LeaderVMIndex]
 	if vm.EOM {
-		fmt.Println("Justin LeadExEOM vm.EOM return")
+		//fmt.Println("Justin LeadExEOM vm.EOM return")
 		return
 	}
 
@@ -443,7 +443,7 @@ func (s *State) LeaderExecuteEOM(m interfaces.IMsg) {
 	ack := s.NewAck(m)
 	s.Acks[eom.GetMsgHash().Fixed()] = ack
 	m.SetLocal(false)
-	fmt.Println("Justin LeadExEOM finishing and going thru to FollExEOM", int(eom.Minute))
+	//fmt.Println("Justin LeadExEOM finishing and going thru to FollExEOM", int(eom.Minute))
 
 	s.FollowerExecuteEOM(m)
 
@@ -600,14 +600,14 @@ func (s *State) ProcessRevealEntry(dbheight uint32, m interfaces.IMsg) bool {
 
 // TODO: Should fault the server if we don't have the proper sequence of EOM messages.
 func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
-	fmt.Println("Justin ProcessEOM dbh:", dbheight)
+	//fmt.Println("Justin ProcessEOM dbh:", dbheight)
 
 	e := msg.(*messages.EOM)
-	fmt.Println("Justin ProcessEOM min:", int(e.Minute))
+	//fmt.Println("Justin ProcessEOM min:", int(e.Minute))
 	// If I have done everything for all EOMs for all VMs, then and only then do I
 	// let processing continue.
 	if s.EOMDone && e.Processed {
-		fmt.Println("Justin ProcessEOM Done!", s.EOMDone, e.Processed)
+		//fmt.Println("Justin ProcessEOM Done!", s.EOMDone, e.Processed)
 		if int(e.Minute) == 9 {
 			s.BlockFinished = true
 		}
@@ -626,7 +626,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 
 	// What I do once for each vm, for each EOM:
 	if !vm.EOM {
-		fmt.Println("Justin ProcessEOM vmCheck1", int(e.Minute))
+		//fmt.Println("Justin ProcessEOM vmCheck1", int(e.Minute))
 		vm.LeaderMinute++
 		vm.EOM = true
 		s.EOMProcessed++
@@ -636,7 +636,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 	// After all EOM markers are processed, but before anything else is done
 	// we do any cleanup required, for all VMs for this EOM
 	if s.EOMProcessed == len(s.LeaderPL.FedServers) {
-		fmt.Println("Justin ProcessEOM finishing procing", int(e.Minute))
+		//fmt.Println("Justin ProcessEOM finishing procing", int(e.Minute))
 		s.EOMDone = true
 
 		s.FactoidState.EndOfPeriod(int(e.Minute))
@@ -662,14 +662,14 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 // is then that we push it out to the rest of the network.  Otherwise, if we are not the
 // leader for the signature, it marks the sig complete for that list
 func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
-	fmt.Println("Justin ProcessDBSig dbh:", dbheight)
+	//fmt.Println("Justin ProcessDBSig dbh:", dbheight)
 	dbs := msg.(*messages.DirectoryBlockSignature)
 
 	//fmt.Printf("dddd %20s %10s --- %10s %10v \n", "ProcessDBSig()", s.FactomNodeName, "DBHeight", dbheight)
 
 	resp := dbs.Validate(s)
 	if resp != 1 {
-		fmt.Println("Justin ProcessDBSig INVALID")
+		//fmt.Println("Justin ProcessDBSig INVALID")
 		//fmt.Printf("dddd %20s %10s --- %10s %10v \n", "ProcessDBSig()-", s.FactomNodeName, "DBHeight", dbheight)
 		return false
 	}
@@ -679,22 +679,22 @@ func (s *State) ProcessDBSig(dbheight uint32, msg interfaces.IMsg) bool {
 	}
 
 	if !dbs.Once {
-		fmt.Println("Justin ProcessDBSig first dbs Once")
+		//fmt.Println("Justin ProcessDBSig first dbs Once")
 		s.DBSigProcessed++
 		dbs.Once = true
 	}
 
 	if s.DBSigProcessed >= len(s.LeaderPL.FedServers) {
-		fmt.Println("Justin ProcessDBSig have enough")
+		//fmt.Println("Justin ProcessDBSig have enough")
 		// TODO: check signatures here.  Count what match and what don't.  Then if a majority
 		// disagree with us, null our entry out.  Otherwise toss our DBState and ask for one from
 		// our neighbors.
 		dbstate := s.DBStates.Get(int(dbheight - 1))
 		if dbstate.Saved {
-			fmt.Println("Justin ProcessDBSig have enough SAVED")
+			//fmt.Println("Justin ProcessDBSig have enough SAVED")
 			return true
 		} else {
-			fmt.Println("Justin ProcessDBSig have enough ReadyToSave")
+			//fmt.Println("Justin ProcessDBSig have enough ReadyToSave")
 			dbstate.ReadyToSave = true
 		}
 	}
