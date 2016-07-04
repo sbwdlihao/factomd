@@ -188,6 +188,8 @@ type State struct {
 	FERChangePrice       uint64
 	FERPriority          uint32
 	FERPrioritySetHeight uint32
+
+	BlockFinished bool
 }
 
 var _ interfaces.IState = (*State)(nil)

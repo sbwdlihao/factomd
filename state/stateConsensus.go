@@ -88,7 +88,7 @@ func (s *State) Process() (progress bool) {
 			s.Leader, s.LeaderVMIndex = s.LeaderPL.GetVirtualServers(s.CurrentMinute-1, s.IdentityChainID)
 			s.NewMinute()
 		case s.CurrentMinute == 0:
-			if s.EOMDone {
+			if s.BlockFinished {
 				fmt.Println("Justin State Process() CurrentMinute is 0 so AddDBState... ProcList:", s.LeaderPL.String())
 				dbstate := s.AddDBState(true, s.LeaderPL.DirectoryBlock, s.LeaderPL.AdminBlock, s.GetFactoidState().GetCurrentBlock(), s.LeaderPL.EntryCreditBlock)
 				if s.LLeaderHeight > 0 {
@@ -130,6 +130,7 @@ func (s *State) Process() (progress bool) {
 				if s.DBStates.SaveDBStateToDB(dbstate) {
 					fmt.Println("dddd Saved", s.FactomNodeName)
 				}
+				s.BlockFinished = false
 			}
 
 		}
@@ -606,6 +607,7 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 	// let processing continue.
 	if s.EOMDone && e.Processed {
 		fmt.Println("Justin ProcessEOM Done!", s.EOMDone, e.Processed)
+		s.BlockFinished = true
 		return true
 	}
 
