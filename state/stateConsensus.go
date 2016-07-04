@@ -328,7 +328,7 @@ func (s *State) FollowerExecuteAck(msg interfaces.IMsg) {
 func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) {
 
 	dbstatemsg, _ := msg.(*messages.DBStateMsg)
-	//fmt.Println("Justin FollExDBState", int(dbstatemsg.GetMinute()), "---", dbstatemsg.DirectoryBlock.GetDatabaseHeight())
+	fmt.Println("Justin FollExDBState", int(dbstatemsg.GetMinute()), "---", dbstatemsg.DirectoryBlock.GetDatabaseHeight())
 	s.DBStates.LastTime = s.GetTimestamp()
 	dbstate := s.AddDBState(false, // Not a new block; got it from the network
 		dbstatemsg.DirectoryBlock,

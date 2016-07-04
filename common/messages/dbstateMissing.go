@@ -9,6 +9,7 @@ import (
 	//	"encoding/binary"
 	"encoding/binary"
 	"fmt"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/primitives"
@@ -111,8 +112,14 @@ func (m *DBStateMissing) FollowerExecute(state interfaces.IState) {
 	for dbs := start; dbs <= end; dbs++ {
 		msg, err := state.LoadDBState(dbs)
 		if msg != nil && err == nil { // If I don't have this block, ignore.
+			fmt.Println("Justin LoadDBState worked!", int(msg.Type()))
 			msg.SetOrigin(m.GetOrigin())
 			state.NetworkOutMsgQueue() <- msg
+		} else {
+			fmt.Println("Justin LoadDBState didn't work!", err)
+			if msg != nil {
+				fmt.Println("Justin LoadDBState no work!", int(msg.Type()))
+			}
 		}
 	}
 
