@@ -607,7 +607,9 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 	// let processing continue.
 	if s.EOMDone && e.Processed {
 		fmt.Println("Justin ProcessEOM Done!", s.EOMDone, e.Processed)
-		s.BlockFinished = true
+		if int(e.Minute) == 9 {
+			s.BlockFinished = true
+		}
 		return true
 	}
 
