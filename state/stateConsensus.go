@@ -237,7 +237,7 @@ func (s *State) AddDBState(isNew bool,
 	fmt.Println("Justin AddDBState", directoryBlock.GetKeyMR().String()[:10], isNew)
 
 	dbState := s.DBStates.NewDBState(isNew, directoryBlock, adminBlock, factoidBlock, entryCreditBlock)
-	s.DBStates.Put(dbState)
+	//s.DBStates.Put(dbState)
 	ht := dbState.DirectoryBlock.GetHeader().GetDBHeight()
 	if ht > s.LLeaderHeight {
 		s.LLeaderHeight = ht
