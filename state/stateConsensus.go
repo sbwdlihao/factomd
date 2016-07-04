@@ -88,46 +88,48 @@ func (s *State) Process() (progress bool) {
 			s.Leader, s.LeaderVMIndex = s.LeaderPL.GetVirtualServers(s.CurrentMinute-1, s.IdentityChainID)
 			s.NewMinute()
 		case s.CurrentMinute == 0:
-			fmt.Println("Justin State Process() CurrentMinute is 0 so AddDBState... ProcList:", s.LeaderPL.String())
-			dbstate := s.AddDBState(true, s.LeaderPL.DirectoryBlock, s.LeaderPL.AdminBlock, s.GetFactoidState().GetCurrentBlock(), s.LeaderPL.EntryCreditBlock)
-			if s.LLeaderHeight > 0 {
-				prev := s.DBStates.Get(int(s.LLeaderHeight))
-				if s.DBStates.FixupLinks(prev, dbstate) {
-					fmt.Println("dddd Fixed", s.FactomNodeName)
+			if s.EOMDone {
+				fmt.Println("Justin State Process() CurrentMinute is 0 so AddDBState... ProcList:", s.LeaderPL.String())
+				dbstate := s.AddDBState(true, s.LeaderPL.DirectoryBlock, s.LeaderPL.AdminBlock, s.GetFactoidState().GetCurrentBlock(), s.LeaderPL.EntryCreditBlock)
+				if s.LLeaderHeight > 0 {
+					prev := s.DBStates.Get(int(s.LLeaderHeight))
+					if s.DBStates.FixupLinks(prev, dbstate) {
+						fmt.Println("dddd Fixed", s.FactomNodeName)
+					}
 				}
-			}
-			if s.DBStates.ProcessBlocks(dbstate) {
-				fmt.Println("dddd Processed", s.FactomNodeName)
-			}
-
-			s.LastHeight = s.LLeaderHeight
-			s.LLeaderHeight++
-			s.LeaderPL = s.ProcessLists.Get(s.LLeaderHeight)
-			s.Leader, s.LeaderVMIndex = s.LeaderPL.GetVirtualServers(0, s.IdentityChainID)
-			s.Saving = true
-			s.DBSigProcessed = 0
-
-			if s.Leader && dbstate != nil {
-				dbs := new(messages.DirectoryBlockSignature)
-				dbs.DirectoryBlockKeyMR = dbstate.DirectoryBlock.GetKeyMR()
-				dbs.ServerIdentityChainID = s.GetIdentityChainID()
-				dbs.DBHeight = s.LLeaderHeight
-				dbs.Timestamp = s.GetTimestamp()
-				dbs.SetVMHash(nil)
-				dbs.SetVMIndex(s.LeaderVMIndex)
-				dbs.SetLocal(true)
-				dbs.Sign(s)
-				err := dbs.Sign(s)
-				if err != nil {
-					//	fmt.Println("dddd ERROR:", s.FactomNodeName, err.Error())
-					panic(err)
+				if s.DBStates.ProcessBlocks(dbstate) {
+					fmt.Println("dddd Processed", s.FactomNodeName)
 				}
-				//fmt.Println("dddd DBSig:", s.FactomNodeName, dbs.String())
-				dbs.LeaderExecute(s)
-			}
 
-			if s.DBStates.SaveDBStateToDB(dbstate) {
-				fmt.Println("dddd Saved", s.FactomNodeName)
+				s.LastHeight = s.LLeaderHeight
+				s.LLeaderHeight++
+				s.LeaderPL = s.ProcessLists.Get(s.LLeaderHeight)
+				s.Leader, s.LeaderVMIndex = s.LeaderPL.GetVirtualServers(0, s.IdentityChainID)
+				s.Saving = true
+				s.DBSigProcessed = 0
+
+				if s.Leader && dbstate != nil {
+					dbs := new(messages.DirectoryBlockSignature)
+					dbs.DirectoryBlockKeyMR = dbstate.DirectoryBlock.GetKeyMR()
+					dbs.ServerIdentityChainID = s.GetIdentityChainID()
+					dbs.DBHeight = s.LLeaderHeight
+					dbs.Timestamp = s.GetTimestamp()
+					dbs.SetVMHash(nil)
+					dbs.SetVMIndex(s.LeaderVMIndex)
+					dbs.SetLocal(true)
+					dbs.Sign(s)
+					err := dbs.Sign(s)
+					if err != nil {
+						//	fmt.Println("dddd ERROR:", s.FactomNodeName, err.Error())
+						panic(err)
+					}
+					//fmt.Println("dddd DBSig:", s.FactomNodeName, dbs.String())
+					dbs.LeaderExecute(s)
+				}
+
+				if s.DBStates.SaveDBStateToDB(dbstate) {
+					fmt.Println("dddd Saved", s.FactomNodeName)
+				}
 			}
 
 		}
