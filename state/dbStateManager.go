@@ -368,18 +368,21 @@ func (list *DBStateList) UpdateState() (progress bool) {
 			continue
 		}
 
-		if i > 0 {
-			//fmt.Println("Justin DBStateList UpdateState() FixupLinks", d.DirectoryBlock.GetDatabaseHeight())
-			if list.DBStates[i-1].Saved {
-				progress = list.FixupLinks(list.DBStates[i-1], d)
-			}
-		}
-		//fmt.Println("Justin DBStateList UpdateState() ProcessBlocks", d.DirectoryBlock.GetDatabaseHeight())
-		fmt.Println("Justin DBStateList UpdateState status1:", i, d.DirectoryBlock.GetKeyMR().String()[:10])
+		if d.isNew {
 
-		progress = list.ProcessBlocks(d) || progress
-		//fmt.Println("Justin DBStateList UpdateState() SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight())
-		fmt.Println("Justin DBStateList UpdateState status2:", i, d.DirectoryBlock.GetKeyMR().String()[:10])
+			if i > 0 {
+				//fmt.Println("Justin DBStateList UpdateState() FixupLinks", d.DirectoryBlock.GetDatabaseHeight())
+				if list.DBStates[i-1].Saved {
+					progress = list.FixupLinks(list.DBStates[i-1], d)
+				}
+			}
+			//fmt.Println("Justin DBStateList UpdateState() ProcessBlocks", d.DirectoryBlock.GetDatabaseHeight())
+			fmt.Println("Justin DBStateList UpdateState status1:", i, d.DirectoryBlock.GetKeyMR().String()[:10])
+
+			progress = list.ProcessBlocks(d) || progress
+			//fmt.Println("Justin DBStateList UpdateState() SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight())
+			fmt.Println("Justin DBStateList UpdateState status2:", i, d.DirectoryBlock.GetKeyMR().String()[:10])
+		}
 
 		fmt.Println("Justin LookAtDBlock Before Saving:", d.DirectoryBlock.GetKeyMR().String()[:10])
 		progress = list.SaveDBStateToDB(d) || progress
