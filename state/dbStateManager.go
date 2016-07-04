@@ -7,10 +7,11 @@ package state
 import (
 	"encoding/hex"
 	"fmt"
+	"time"
+
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/messages"
 	"github.com/FactomProject/factomd/log"
-	"time"
 )
 
 var _ = hex.EncodeToString
@@ -246,6 +247,7 @@ func (list *DBStateList) ProcessBlocks(d *DBState) (progress bool) {
 	list.LastTime = list.State.GetTimestamp() // If I saved or processed stuff, I'm good for a while
 
 	// Any updates required to the state as established by the AdminBlock are applied here.
+	fmt.Println("Justin DBStateList ProcessBlocks about to UpdateState")
 	d.AdminBlock.UpdateState(list.State)
 
 	// Process the Factoid End of Block
