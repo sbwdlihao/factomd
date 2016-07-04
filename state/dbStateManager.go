@@ -494,6 +494,10 @@ func (list *DBStateList) NewDBState(isNew bool,
 	dbState.FactoidBlock = factoidBlock
 	dbState.EntryCreditBlock = entryCreditBlock
 
+	if !isNew {
+		dbState.Locked = true
+	}
+
 	fmt.Println("Justin NewDBState:", directoryBlock.GetKeyMR().String()[:10], isNew)
 	list.Put(dbState)
 
