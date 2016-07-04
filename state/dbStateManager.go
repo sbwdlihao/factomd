@@ -450,6 +450,7 @@ searchLoop:
 	if index < int(list.Complete) {
 		return
 	}
+	fmt.Println("Justin DBStateList Put (middle)", dbState.DirectoryBlock.GetKeyMR().String()[:10])
 
 	// make room for this entry.
 	for len(list.DBStates) <= index {
@@ -459,7 +460,8 @@ searchLoop:
 		list.DBStates[index] = dbState
 	}
 
-	if !dbState.Locked {
+	if !dbState.Locked && !dbState.ReadyToSave {
+		fmt.Println("Justin DBStateList Put apparently")
 		dbState.DirectoryBlock.SetABlockHash(dbState.AdminBlock)
 		dbState.DirectoryBlock.SetECBlockHash(dbState.EntryCreditBlock)
 		dbState.DirectoryBlock.SetFBlockHash(dbState.FactoidBlock)
