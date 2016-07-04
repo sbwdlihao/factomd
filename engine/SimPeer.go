@@ -7,6 +7,7 @@ package engine
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/FactomProject/factomd/common/interfaces"
 	"github.com/FactomProject/factomd/common/messages"
 )
@@ -67,6 +68,7 @@ func (f *SimPeer) Send(msg interfaces.IMsg) error {
 		fmt.Println("ERROR on Send: ", err)
 		return err
 	}
+	fmt.Println("Justin SimPeer Send():", int(msg.Type()))
 	if len(f.BroadcastOut) < 9000 {
 		f.BroadcastOut <- data
 	}
