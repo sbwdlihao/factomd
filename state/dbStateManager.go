@@ -193,6 +193,8 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 		return
 	}
 
+	fmt.Println("Justin Fixup OLD:", p.String())
+
 	d.DirectoryBlock.MarshalBinary()
 
 	hash, _ := p.EntryCreditBlock.HeaderHash()
