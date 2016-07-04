@@ -43,6 +43,7 @@ func (state *State) ValidatorLoop() {
 				if !p && !b {
 					break
 				}
+				state.UpdateState()
 				//fmt.Printf("dddd %20s %10s --- %10s %10v %10s %10v\n", "Validation", state.FactomNodeName, "Process", p, "Update", b)
 			}
 
