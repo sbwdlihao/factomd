@@ -230,7 +230,7 @@ func (s *State) AddDBState(isNew bool,
 	adminBlock interfaces.IAdminBlock,
 	factoidBlock interfaces.IFBlock,
 	entryCreditBlock interfaces.IEntryCreditBlock) *DBState {
-	//fmt.Println("Justin AddDBState", directoryBlock.GetHash().String()[:10])
+	fmt.Println("Justin AddDBState", directoryBlock.GetKeyMR().String()[:10])
 
 	dbState := s.DBStates.NewDBState(isNew, directoryBlock, adminBlock, factoidBlock, entryCreditBlock)
 	s.DBStates.Put(dbState)
@@ -335,6 +335,7 @@ func (s *State) FollowerExecuteDBState(msg interfaces.IMsg) {
 		dbstatemsg.AdminBlock,
 		dbstatemsg.FactoidBlock,
 		dbstatemsg.EntryCreditBlock)
+	dbstate.Locked = true
 	dbstate.ReadyToSave = true
 }
 
