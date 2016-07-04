@@ -196,19 +196,26 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 	hash, _ := p.EntryCreditBlock.HeaderHash()
 	d.EntryCreditBlock.GetHeader().SetPrevHeaderHash(hash)
 
+	fmt.Println("Justin Fixup Hash1:", hash.String()[:10])
+
 	hash, _ = p.EntryCreditBlock.GetFullHash()
 	d.EntryCreditBlock.GetHeader().SetPrevFullHash(hash)
+	fmt.Println("Justin Fixup Hash2:", hash.String()[:10])
 
 	d.AdminBlock.GetHeader().SetPrevFullHash(hash)
 
 	p.FactoidBlock.SetDBHeight(p.DirectoryBlock.GetHeader().GetDBHeight())
 	d.FactoidBlock.SetDBHeight(d.DirectoryBlock.GetHeader().GetDBHeight())
+	fmt.Println("Justin Fixup Hash3:", p.FactoidBlock.GetKeyMR().String()[:10])
 	d.FactoidBlock.SetPrevKeyMR(p.FactoidBlock.GetKeyMR().Bytes())
 	d.FactoidBlock.SetPrevFullHash(p.FactoidBlock.GetPrevFullHash().Bytes())
-
+	fmt.Println("Justin Fixup Hash4:", p.FactoidBlock.GetPrevFullHash().String()[:10])
 	d.DirectoryBlock.GetHeader().SetPrevFullHash(p.DirectoryBlock.GetFullHash())
+	fmt.Println("Justin Fixup Hash4:", p.DirectoryBlock.GetFullHash().String()[:10])
 	d.DirectoryBlock.GetHeader().SetPrevKeyMR(p.DirectoryBlock.GetKeyMR())
+	fmt.Println("Justin Fixup Hash4:", p.DirectoryBlock.GetKeyMR().String()[:10])
 	d.DirectoryBlock.GetHeader().SetTimestamp(list.State.GetLeaderTimestamp())
+	fmt.Println("Justin Fixup Timestamp:", list.State.GetLeaderTimestamp().String())
 
 	d.DirectoryBlock.SetABlockHash(d.AdminBlock)
 	d.DirectoryBlock.SetECBlockHash(d.EntryCreditBlock)
@@ -228,6 +235,7 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 			panic(err.Error())
 		}
 		d.DirectoryBlock.AddEntry(eb.GetChainID(), key)
+		fmt.Println("Justin Fixup entry:", key)
 	}
 
 	d.DirectoryBlock.BuildBodyMR()
