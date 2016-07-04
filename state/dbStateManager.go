@@ -459,9 +459,11 @@ searchLoop:
 		list.DBStates[index] = dbState
 	}
 
-	dbState.DirectoryBlock.SetABlockHash(dbState.AdminBlock)
-	dbState.DirectoryBlock.SetECBlockHash(dbState.EntryCreditBlock)
-	dbState.DirectoryBlock.SetFBlockHash(dbState.FactoidBlock)
+	if !dbState.Locked {
+		dbState.DirectoryBlock.SetABlockHash(dbState.AdminBlock)
+		dbState.DirectoryBlock.SetECBlockHash(dbState.EntryCreditBlock)
+		dbState.DirectoryBlock.SetFBlockHash(dbState.FactoidBlock)
+	}
 	fmt.Println("Justin DBStateList Put (after)", dbState.DirectoryBlock.GetKeyMR().String()[:10])
 
 }
