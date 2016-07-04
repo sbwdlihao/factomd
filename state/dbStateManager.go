@@ -188,6 +188,8 @@ func (list *DBStateList) Catchup() {
 func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 	// If this block is new, then make sure all hashes are fully computed.
 	if !d.isNew {
+		fmt.Println("Justin Fixup exit")
+
 		return
 	}
 
@@ -249,6 +251,7 @@ func (list *DBStateList) FixupLinks(p *DBState, d *DBState) (progress bool) {
 
 func (list *DBStateList) ProcessBlocks(d *DBState) (progress bool) {
 	if d.isNew || d.Locked {
+		fmt.Println("Justin ProcessBlocks exit")
 		return
 	}
 
