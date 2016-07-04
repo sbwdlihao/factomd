@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"bytes"
+	"log"
+
 	"github.com/FactomProject/factomd/common/constants"
 	"github.com/FactomProject/factomd/common/directoryBlock"
 	"github.com/FactomProject/factomd/database/databaseOverlay"
-	"log"
 
 	"time"
 
@@ -379,11 +380,13 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 	//------------------------------------------------------------
 	// Start Process Here
 	//------------------------------------------------------------
+	fmt.Println("Justin Process (ProcessList)... DBH:", p.DBHeight)
 	if p.DBHeight > 0 {
 
 		prev := state.DBStates.Get(int(p.DBHeight - 1))
 
 		if prev == nil {
+			fmt.Println("Justin Process (ProcessList) NO PREV")
 			//fmt.Printf("dddd %20s %10s --- %10s %10v \n", "PLProcess-", p.State.FactomNodeName, "PrevHt", "<nil>")
 			return
 		}
@@ -444,6 +447,7 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 				}
 			}
 
+			fmt.Println("Justin Process (ProcessList) tryToProcess:", p.DBHeight, "(j is", j, ")")
 			if vm.List[j].Process(p.DBHeight, state) { // Try and Process this entry
 
 				vm.Height = j + 1 // Don't process it again if the process worked.
