@@ -31,6 +31,8 @@ func (lists *ProcessLists) UpdateState(dbheight uint32) (progress bool) {
 	//fmt.Println("Justin ProcessLists UpdateState() DBH:", dbheight)
 	pl := lists.Get(dbheight)
 
+	fmt.Println("Justin PL UpdateState:", pl.String())
+
 	// Look and see if we need to toss some previous blocks under construction.
 	diff := dbheight - lists.DBHeightBase
 	if diff > 1 && len(lists.Lists) > 1 {

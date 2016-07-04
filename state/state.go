@@ -751,10 +751,13 @@ func (s *State) UpdateState() (progress bool) {
 	plbase := s.ProcessLists.DBHeightBase
 	fmt.Println("Justin State UpdateState() plbase:", plbase, "dbh:", dbheight)
 	if plbase <= dbheight+1 {
+		fmt.Println("Justin State UpdateState() fire", plbase, "-", dbheight)
 		progress = s.ProcessLists.UpdateState(dbheight + 1)
 	}
 
+	fmt.Println("Justin State UpdateState() fire2")
 	p2 := s.DBStates.UpdateState()
+	fmt.Println("Justin State UpdateState() fireProg:", progress, p2)
 	progress = progress || p2
 
 	s.catchupEBlocks()
@@ -771,6 +774,7 @@ func (s *State) catchupEBlocks() {
 	isComplete := true
 	if s.GetEBDBHeightComplete() < s.GetDBHeightComplete() {
 		dblockGathering := s.GetDirectoryBlockByHeight(s.GetEBDBHeightComplete())
+		fmt.Println("Justin catchupEB1:", dblockGathering.GetKeyMR().String()[:10])
 		for idx, ebKeyMR := range dblockGathering.GetEntryHashes() {
 			if idx > 2 {
 				if s.DatabaseContains(ebKeyMR) {
@@ -789,7 +793,9 @@ func (s *State) catchupEBlocks() {
 		if isComplete {
 			s.SetEBDBHeightComplete(s.GetEBDBHeightComplete() + 1)
 		}
+		fmt.Println("Justin catchupEB2:", dblockGathering.GetKeyMR().String()[:10])
 	}
+
 }
 
 func (s *State) GetEOM() bool {

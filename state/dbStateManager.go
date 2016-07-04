@@ -113,7 +113,7 @@ func (ds *DBState) String() string {
 func (list *DBStateList) GetHighestRecordedBlock() uint32 {
 	ht := uint32(0)
 	for i, dbstate := range list.DBStates {
-		if dbstate != nil && dbstate.Saved {
+		if dbstate != nil && dbstate.Locked {
 			ht = list.Base + uint32(i)
 		}
 	}

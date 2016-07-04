@@ -386,7 +386,7 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 		prev := state.DBStates.Get(int(p.DBHeight - 1))
 
 		if prev == nil {
-			//fmt.Println("Justin Process (ProcessList) NO PREV")
+			fmt.Println("Justin Process (ProcessList) NO PREV")
 			//fmt.Printf("dddd %20s %10s --- %10s %10v \n", "PLProcess-", p.State.FactomNodeName, "PrevHt", "<nil>")
 			return
 		}
@@ -399,6 +399,7 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 	VMListLoop:
 		for j := vm.Height; j < len(vm.List); j++ {
 			if vm.List[j] == nil {
+				fmt.Println("Justin Process(ProcessList) breakV1")
 				//fmt.Printf("dddd %20s %10s --- %10s %10v %10s %10v %10s %10v \n", "ListLoop-", p.State.FactomNodeName, "HT", j, "vm.Height", vm.Height, "len(List)", len(vm.List))
 				vm.missingTime = ask(i, vm, vm.missingTime, j)
 				break VMListLoop
@@ -421,6 +422,8 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 					vm.ListAck[j] = nil
 					// Ask for the correct ack if this one is no good.
 					vm.missingTime = ask(i, vm, vm.missingTime, j)
+					fmt.Println("Justin Process(ProcessList) breakV2")
+
 					break VMListLoop
 				}
 
@@ -443,6 +446,8 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 					// according to this node's processList
 					vm.List[j] = nil
 					vm.missingTime = ask(i, vm, vm.missingTime, j)
+					fmt.Println("Justin Process(ProcessList) breakV3")
+
 					break VMListLoop
 				}
 			}
