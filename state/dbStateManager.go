@@ -271,7 +271,7 @@ func (list *DBStateList) ProcessBlocks(d *DBState) (progress bool) {
 }
 
 func (list *DBStateList) SaveDBStateToDB(d *DBState) (progress bool) {
-	//fmt.Println("Justin DBStateList SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight(), d.DirectoryBlock.GetHash().String()[:10])
+	fmt.Println("Justin DBStateList SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight(), d.DirectoryBlock.GetKeyMR().String()[:10])
 	if !d.Locked || !d.ReadyToSave {
 		//fmt.Println("Justin DBStateList SaveDBStateToDB NotLocked or NotReadyToSave")
 		return
@@ -285,7 +285,7 @@ func (list *DBStateList) SaveDBStateToDB(d *DBState) (progress bool) {
 				d.DirectoryBlock.GetHeader().GetDBHeight(),
 				d.DirectoryBlock.GetKeyMR().Bytes()))
 		}
-		//fmt.Println("Justin DBStateList SaveDBStateToDB (already saved):", d.DirectoryBlock.GetDatabaseHeight())
+		fmt.Println("Justin DBStateList SaveDBStateToDB (already saved):", d.DirectoryBlock.GetDatabaseHeight())
 		return
 	}
 
@@ -363,7 +363,7 @@ func (list *DBStateList) UpdateState() (progress bool) {
 		progress = list.ProcessBlocks(d) || progress
 		//fmt.Println("Justin DBStateList UpdateState() SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight())
 
-		//fmt.Println("Justin LookAtDBlock Before Saving:", d.DirectoryBlock.GetHash().String()[:10])
+		fmt.Println("Justin LookAtDBlock Before Saving:", d.DirectoryBlock.GetKeyMR().String()[:10])
 		progress = list.SaveDBStateToDB(d) || progress
 
 		// Make sure the directory block is properly synced up with the prior block, if there
