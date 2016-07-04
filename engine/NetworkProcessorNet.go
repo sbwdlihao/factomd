@@ -40,6 +40,7 @@ func Peers(fnode *FactomNode) {
 
 					fnode.MLog.add2(fnode, false, fnode.State.FactomNodeName, "API", true, msg)
 					if len(fnode.State.InMsgQueue()) < 9000 {
+						fmt.Println("Justin Peers feed InMsgQueue APIQ", int(msg.Type()))
 						fnode.State.InMsgQueue() <- msg
 					}
 				}
@@ -88,7 +89,10 @@ func Peers(fnode *FactomNode) {
 
 					// Ignore messages if there are too many.
 					if len(fnode.State.InMsgQueue()) < 9000 {
+						fmt.Println("Justin Peers feed InMsgQueue from Recieve", int(msg.Type()))
 						fnode.State.InMsgQueue() <- msg
+					} else {
+						fmt.Println("Justin InMsgQueue TOO FAT")
 					}
 
 				} else {
