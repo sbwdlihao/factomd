@@ -380,7 +380,7 @@ func (p *ProcessList) Process(state *State) (progress bool) {
 	//------------------------------------------------------------
 	// Start Process Here
 	//------------------------------------------------------------
-	fmt.Println("Justin Process (ProcessList)... DBH:", p.DBHeight)
+	//fmt.Println("Justin Process (ProcessList)... DBH:", p.DBHeight)
 	if p.DBHeight > 0 {
 
 		prev := state.DBStates.Get(int(p.DBHeight - 1))
