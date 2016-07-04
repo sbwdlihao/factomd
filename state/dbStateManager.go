@@ -369,7 +369,9 @@ func (list *DBStateList) UpdateState() (progress bool) {
 
 		if i > 0 {
 			//fmt.Println("Justin DBStateList UpdateState() FixupLinks", d.DirectoryBlock.GetDatabaseHeight())
-			progress = list.FixupLinks(list.DBStates[i-1], d)
+			if list.DBStates[i-1].Saved {
+				progress = list.FixupLinks(list.DBStates[i-1], d)
+			}
 		}
 		//fmt.Println("Justin DBStateList UpdateState() ProcessBlocks", d.DirectoryBlock.GetDatabaseHeight())
 
