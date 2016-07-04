@@ -88,6 +88,7 @@ func (s *State) Process() (progress bool) {
 			s.Leader, s.LeaderVMIndex = s.LeaderPL.GetVirtualServers(s.CurrentMinute-1, s.IdentityChainID)
 			s.NewMinute()
 		case s.CurrentMinute == 0:
+			fmt.Println("Justin State Process() CurrentMinute is 0 so AddDBState... ProcList:", s.LeaderPL.String())
 			dbstate := s.AddDBState(true, s.LeaderPL.DirectoryBlock, s.LeaderPL.AdminBlock, s.GetFactoidState().GetCurrentBlock(), s.LeaderPL.EntryCreditBlock)
 			if s.LLeaderHeight > 0 {
 				prev := s.DBStates.Get(int(s.LLeaderHeight))
@@ -225,6 +226,7 @@ func (s *State) AddDBState(isNew bool,
 	adminBlock interfaces.IAdminBlock,
 	factoidBlock interfaces.IFBlock,
 	entryCreditBlock interfaces.IEntryCreditBlock) *DBState {
+	fmt.Println("Justin AddDBState", directoryBlock.GetHash().String()[:10])
 
 	dbState := s.DBStates.NewDBState(isNew, directoryBlock, adminBlock, factoidBlock, entryCreditBlock)
 	s.DBStates.Put(dbState)

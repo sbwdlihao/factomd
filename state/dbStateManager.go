@@ -355,10 +355,15 @@ func (list *DBStateList) UpdateState() (progress bool) {
 		}
 
 		if i > 0 {
+			fmt.Println("Justin DBStateList UpdateState() FixupLinks", d.DirectoryBlock.GetDatabaseHeight())
 			progress = list.FixupLinks(list.DBStates[i-1], d)
 		}
-		progress = list.ProcessBlocks(d) || progress
+		fmt.Println("Justin DBStateList UpdateState() ProcessBlocks", d.DirectoryBlock.GetDatabaseHeight())
 
+		progress = list.ProcessBlocks(d) || progress
+		fmt.Println("Justin DBStateList UpdateState() SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight())
+
+		fmt.Println("Justin LookAtDBlock Before Saving:", d.DirectoryBlock.GetHash().String()[:10])
 		progress = list.SaveDBStateToDB(d) || progress
 
 		// Make sure the directory block is properly synced up with the prior block, if there
