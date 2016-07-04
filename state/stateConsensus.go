@@ -92,6 +92,8 @@ func (s *State) Process() (progress bool) {
 				s.UpdateState()
 			}
 			fmt.Println("Justin State Process() CurrentMinute is 0 so AddDBState... ProcList:", s.LeaderPL.String())
+			fmt.Println("Justin Meanwhile State Process() is 0 so AddDBState... FProcList:", s.ProcessLists.Get(s.LastHeight))
+
 			dbstate := s.AddDBState(true, s.LeaderPL.DirectoryBlock, s.LeaderPL.AdminBlock, s.GetFactoidState().GetCurrentBlock(), s.LeaderPL.EntryCreditBlock)
 			if s.LLeaderHeight > 0 {
 				prev := s.DBStates.Get(int(s.LLeaderHeight))
