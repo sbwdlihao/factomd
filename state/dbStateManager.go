@@ -172,7 +172,7 @@ func (list *DBStateList) Catchup() {
 		end2 = end
 	}
 
-	msg := messages.NewDBStateMissing(list.State, uint32(begin), uint32(end2))
+	msg := messages.NewDBStateMissing(list.State, uint32(begin-1), uint32(end2-1))
 
 	if msg != nil {
 
