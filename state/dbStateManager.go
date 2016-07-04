@@ -460,7 +460,7 @@ searchLoop:
 		list.DBStates[index] = dbState
 	}
 
-	if !dbState.Locked && !dbState.ReadyToSave {
+	if !dbState.Locked {
 		fmt.Println("Justin DBStateList Put apparently")
 		dbState.DirectoryBlock.SetABlockHash(dbState.AdminBlock)
 		dbState.DirectoryBlock.SetECBlockHash(dbState.EntryCreditBlock)
@@ -501,6 +501,9 @@ func (list *DBStateList) NewDBState(isNew bool,
 	dbState.EntryCreditBlock = entryCreditBlock
 
 	fmt.Println("Justin NewDBState:", directoryBlock.GetKeyMR().String()[:10], isNew)
+	if isNew {
+		dbState.Locked = true
+	}
 	list.Put(dbState)
 
 	return dbState
