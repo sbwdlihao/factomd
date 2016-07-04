@@ -501,7 +501,7 @@ func (list *DBStateList) NewDBState(isNew bool,
 	dbState.EntryCreditBlock = entryCreditBlock
 
 	fmt.Println("Justin NewDBState:", directoryBlock.GetKeyMR().String()[:10], isNew)
-	if isNew {
+	if !isNew {
 		dbState.Locked = true
 	}
 	list.Put(dbState)
