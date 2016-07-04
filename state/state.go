@@ -237,7 +237,7 @@ func (s *State) Clone(number string) interfaces.IState {
 	clone.Port = s.Port
 
 	clone.OneLeader = s.OneLeader
-
+	clone.BlockFinished = s.BlockFinished
 	return clone
 }
 
@@ -442,6 +442,8 @@ func (s *State) Init() {
 
 	s.AuditHeartBeats = make([]interfaces.IMsg, 0)
 	s.FedServerFaults = make([][]interfaces.IMsg, 0)
+
+	s.BlockFinished = false
 
 	s.initServerKeys()
 	s.AuthorityServerCount = 0
