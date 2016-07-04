@@ -165,6 +165,8 @@ func (list *DBStateList) Catchup() {
 		}
 	}
 
+	list.State.BlockFinished = false
+
 	list.Lastreq = begin
 
 	end2 := begin + 400
@@ -172,7 +174,7 @@ func (list *DBStateList) Catchup() {
 		end2 = end
 	}
 
-	msg := messages.NewDBStateMissing(list.State, uint32(begin-1), uint32(end2-1))
+	msg := messages.NewDBStateMissing(list.State, uint32(begin), uint32(end2))
 
 	if msg != nil {
 
