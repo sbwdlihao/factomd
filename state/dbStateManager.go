@@ -266,7 +266,7 @@ func (list *DBStateList) ProcessBlocks(d *DBState) (progress bool) {
 	}
 	progress = true
 	d.Locked = true // Only after all is done will I admit this state has been saved.
-
+	fmt.Println("Justin ProcessBlocks:", d.DirectoryBlock.GetKeyMR().String()[:10])
 	return
 }
 
