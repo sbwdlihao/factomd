@@ -353,8 +353,9 @@ func (list *DBStateList) SaveDBStateToDB(d *DBState) (progress bool) {
 func (list *DBStateList) UpdateState() (progress bool) {
 
 	list.Catchup()
-
+	fmt.Println("Justin DBStateList UpdateState")
 	for i, d := range list.DBStates {
+		fmt.Println("Justin DBStateList UpdateState status:", i, d.DirectoryBlock.GetKeyMR().String()[:10])
 
 		//fmt.Printf("dddd %20s %10s --- %10s %10v %10s %10v \n", "DBStateList Update", list.State.FactomNodeName, "Looking at", i, "DBHeight", list.Base+uint32(i))
 
@@ -374,9 +375,11 @@ func (list *DBStateList) UpdateState() (progress bool) {
 			}
 		}
 		//fmt.Println("Justin DBStateList UpdateState() ProcessBlocks", d.DirectoryBlock.GetDatabaseHeight())
+		fmt.Println("Justin DBStateList UpdateState status1:", i, d.DirectoryBlock.GetKeyMR().String()[:10])
 
 		progress = list.ProcessBlocks(d) || progress
 		//fmt.Println("Justin DBStateList UpdateState() SaveDBStateToDB", d.DirectoryBlock.GetDatabaseHeight())
+		fmt.Println("Justin DBStateList UpdateState status2:", i, d.DirectoryBlock.GetKeyMR().String()[:10])
 
 		fmt.Println("Justin LookAtDBlock Before Saving:", d.DirectoryBlock.GetKeyMR().String()[:10])
 		progress = list.SaveDBStateToDB(d) || progress
