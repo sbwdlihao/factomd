@@ -608,6 +608,9 @@ func (s *State) ProcessEOM(dbheight uint32, msg interfaces.IMsg) bool {
 	//fmt.Println("Justin ProcessEOM dbh:", dbheight)
 
 	e := msg.(*messages.EOM)
+	if e.DBHeight != dbheight {
+		return false
+	}
 	//fmt.Println("Justin ProcessEOM min:", int(e.Minute))
 	// If I have done everything for all EOMs for all VMs, then and only then do I
 	// let processing continue.
